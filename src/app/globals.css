@@ -220,6 +220,21 @@
   );
 }
 
+/* Revelação do título do hero: cada palavra sobe de dentro de uma máscara (único momento "autoral" da home) */
+@keyframes rise {
+  from {
+    transform: translateY(108%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@utility animate-rise {
+  animation: rise 900ms var(--ease-out-expo) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+
 /* Moldura: o elemento mais reconhecível da referência */
 @utility frame {
   border: 1px solid var(--line);

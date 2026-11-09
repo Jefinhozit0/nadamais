@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Lexend_Exa, Unbounded } from "next/font/google";
+import { CartDrawer } from "@/components/cart/cart-drawer";
 import { CartHydrator } from "@/components/cart/cart-hydrator";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
@@ -66,6 +67,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Footer />
         </div>
         <CartHydrator />
+        <CartDrawer />
       </body>
     </html>
   );

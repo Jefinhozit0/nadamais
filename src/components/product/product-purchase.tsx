@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { convertSneakerSize, sizeNotations, type SizeNotation } from "@/lib/sizes";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/store/cart";
+import { useCartDrawer } from "@/store/cart-ui";
 import type { Product } from "@/types/product";
 import { SizePicker } from "./size-picker";
 
@@ -16,6 +17,7 @@ type Props = {
 /** Seleção de tamanho (BR/US/EU para tênis) + adicionar à sacola. */
 export function ProductPurchase({ product }: Props) {
   const add = useCart((state) => state.add);
+  const openDrawer = useCartDrawer((state) => state.setOpen);
   const errorId = useId();
   const oneSize = product.sizeSystem === "one-size";
   const [size, setSize] = useState<string | undefined>(oneSize ? product.sizes[0]?.label : undefined);
@@ -43,6 +45,7 @@ export function ProductPurchase({ product }: Props) {
     });
     setError(false);
     setAdded(true);
+    openDrawer(true);
     window.setTimeout(() => setAdded(false), 2600);
   }
 

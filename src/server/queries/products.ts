@@ -11,7 +11,7 @@ import {
   type CatalogFilters,
   type Facets,
 } from "@/lib/catalog";
-import type { Brand, Product } from "@/types/product";
+import type { Line, Product } from "@/types/product";
 
 /**
  * Camada de acesso a dados. Hoje lê o mock em memória; na Fase 4 passa a
@@ -44,13 +44,13 @@ export async function getAllProductSlugs(): Promise<string[]> {
   return products.map((p) => p.slug);
 }
 
-/** Mesma categoria, priorizando mesma marca; exclui o próprio produto. */
+/** Mesma categoria, priorizando a mesma linha; exclui o próprio produto. */
 export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {
   return products
     .filter((p) => p.id !== product.id && p.category === product.category)
     .sort(
       (a, b) =>
-        Number(b.brand === product.brand) - Number(a.brand === product.brand) ||
+        Number(b.line === product.line) - Number(a.line === product.line) ||
         Number(inStock(b)) - Number(inStock(a)) ||
         b.popularity - a.popularity,
     )
@@ -70,45 +70,46 @@ export async function getTrending(limit = 8): Promise<Product[]> {
 
 export async function getFeaturedDrop(): Promise<Product> {
   const [latest] = sortProducts(
-    products.filter((p) => p.badge === "drop" && inStock(p)),
+    // foto de produto (não o recorte da campanha, que já está no hero)
+    products.filter((p) => p.badge === "drop" && inStock(p) && p.images[0]?.kind === "photo"),
     "novos",
   );
   return latest ?? products[0]!;
 }
 
-export async function getBrandSummary(): Promise<{ brand: Brand; count: number; cover?: Product }[]> {
-  const map = new Map<Brand, Product[]>();
-  for (const p of products) map.set(p.brand, [...(map.get(p.brand) ?? []), p]);
-  return Array.from(map.entries())
-    .map(([brand, items]) => ({
-      brand,
+export async function getLineSummary(): Promise<{ line: Line; count: number; cover?: Product }[]> {
+  const order: Line[] = ["essencial", "court", "volume", "utility"];
+  return order.map((line) => {
+    const items = products.filter((p) => p.line === line);
+    return {
+      line,
       count: items.length,
-      cover: [...items].sort((a, b) => b.popularity - a.popularity)[0],
-    }))
-    .sort((a, b) => b.count - a.count);
+      cover: [...items].filter((p) => p.images.length > 0).sort((a, b) => b.popularity - a.popularity)[0],
+    };
+  });
 }
 
 export async function getCategoryCovers(): Promise<Record<Product["category"], Product | undefined>> {
   // Capas escolhidas a dedo: fotos que aguentam texto por cima (sem estampa competindo)
   const bySlug = (slug: string) => products.find((p) => p.slug === slug);
   return {
-    sneakers: bySlug("air-jordan-1-retro-high-og-lost-found"),
-    roupas: bySlug("carhartt-wip-regular-cargo-pant-black"),
-    acessorios: bySlug("carhartt-wip-acrylic-watch-hat-black"),
+    sneakers: bySlug("court-gum-areia"),
+    roupas: bySlug("calca-cargo-ripstop"),
+    acessorios: bySlug("bone-6-gomos-branco"),
   };
 }
 
 export type SearchSuggestion =
-  | { kind: "product"; slug: string; name: string; brand: Brand; price: number; image?: string }
-  | { kind: "brand"; brand: Brand; count: number };
+  | { kind: "product"; slug: string; name: string; line: Line; price: number; image?: string }
+  | { kind: "line"; line: Line; count: number };
 
 export async function searchSuggestions(q: string, limit = 6): Promise<SearchSuggestion[]> {
   const query = q.trim();
   if (query.length < 2) return [];
   const needle = normalize(query);
-  const brandHits = (Array.from(new Set(products.map((p) => p.brand))) as Brand[])
-    .filter((brand) => normalize(brand).includes(needle))
-    .map((brand) => ({ kind: "brand" as const, brand, count: products.filter((p) => p.brand === brand).length }));
+  const lineHits = (["essencial", "court", "volume", "utility"] as const)
+    .filter((line) => line.includes(needle))
+    .map((line) => ({ kind: "line" as const, line, count: products.filter((p) => p.line === line).length }));
   const productHits = sortProducts(
     products.filter((p) => matchesQuery(p, query)),
     "relevancia",
@@ -118,9 +119,9 @@ export async function searchSuggestions(q: string, limit = 6): Promise<SearchSug
       kind: "product" as const,
       slug: p.slug,
       name: p.name,
-      brand: p.brand,
+      line: p.line,
       price: p.price,
       image: p.images[0]?.src,
     }));
-  return [...brandHits.slice(0, 2), ...productHits].slice(0, limit);
+  return [...lineHits.slice(0, 1), ...productHits].slice(0, limit);
 }

@@ -9,7 +9,8 @@ export type CartLine = {
   productId: string;
   slug: string;
   name: string;
-  brand: string;
+  /** Linha (coleção) do produto. */
+  line: string;
   size: string;
   /** Em centavos, no momento da adição (revalidado no checkout). */
   price: number;
@@ -54,7 +55,8 @@ export const useCart = create<CartState>()(
       clear: () => set({ lines: [] }),
     }),
     {
-      name: "cart-v1",
+      // v2: catálogo sem marcas de terceiros (sacolas v1 apontam para produtos que não existem mais)
+      name: "cart-v2",
       storage: createJSONStorage(() => localStorage),
       // Reidratação manual após montar, para o HTML do servidor e do cliente baterem
       skipHydration: true,

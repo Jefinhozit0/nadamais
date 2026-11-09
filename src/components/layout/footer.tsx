@@ -12,7 +12,7 @@ export function Footer() {
       <div className="grid gap-12 lg:grid-cols-12">
         <div className="min-w-0 lg:col-span-5">
           <p className="max-w-[22ch] font-display text-xl leading-tight font-medium tracking-tight text-balance sm:text-2xl md:text-3xl">
-            Só original. Sem excesso.
+            Peças de verdade. Sem excesso.
           </p>
           <p className="mt-4 max-w-[42ch] text-sm text-mute-strong">
             Receba os drops antes de todo mundo. Um e-mail por lançamento, nada além disso.
@@ -52,8 +52,8 @@ export function Footer() {
           © {year} {siteConfig.name} · cnpj 00.000.000/0001-00 · {siteConfig.city}
         </p>
         <p>pix · cartão em até {siteConfig.maxInstallments}x · boleto</p>
-        <Link href="/sobre#autenticidade" className="inline-flex items-center gap-1 rounded-sm text-ink hover:underline underline-offset-4">
-          100% original, com selo de procedência <ArrowUpRight className="size-3" strokeWidth={1.5} />
+        <Link href="/sobre#qualidade" className="inline-flex items-center gap-1 rounded-sm text-ink hover:underline underline-offset-4">
+          como garantimos cada peça <ArrowUpRight className="size-3" strokeWidth={1.5} />
         </Link>
       </div>
     </footer>

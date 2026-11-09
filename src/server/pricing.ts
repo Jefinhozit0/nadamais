@@ -13,7 +13,7 @@ export type PricedLine = {
   productId: string;
   slug: string;
   name: string;
-  brand: string;
+  line: string;
   size: string;
   quantity: number;
   unitPrice: number;
@@ -48,7 +48,7 @@ export function priceCart(items: readonly CartItemInput[]): PricedCart {
       productId: product.id,
       slug: product.slug,
       name: product.name,
-      brand: product.brand,
+      line: product.line,
       size: item.size,
       quantity,
       unitPrice: product.price,

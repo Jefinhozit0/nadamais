@@ -7,7 +7,7 @@ import { ProductCard } from "@/components/product/product-card";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductPurchase } from "@/components/product/product-purchase";
 import { siteConfig } from "@/config/site";
-import { brandSlugs, categoryLabels } from "@/lib/catalog";
+import { catalogHref, categoryLabels } from "@/lib/catalog";
 import { discountPercent, formatBRL, formatInstallments, pixPrice } from "@/lib/format";
 import { getAllProductSlugs, getProductBySlug, getRelatedProducts } from "@/server/queries/products";
 
@@ -59,8 +59,8 @@ export default async function ProductPage({ params }: PageProps<"/produto/[slug]
           </li>
           <li aria-hidden="true">/</li>
           <li>
-            <Link href={`/catalogo?marca=${brandSlugs[product.brand]}`} className="rounded-sm hover:text-ink">
-              {product.brand.toLowerCase()}
+            <Link href={catalogHref({ linhas: [product.line] })} className="rounded-sm hover:text-ink">
+              linha {product.line}
             </Link>
           </li>
           <li aria-hidden="true">/</li>
@@ -80,10 +80,10 @@ export default async function ProductPage({ params }: PageProps<"/produto/[slug]
             <div>
               <div className="flex items-center justify-between gap-3">
                 <Link
-                  href={`/catalogo?marca=${brandSlugs[product.brand]}`}
+                  href={catalogHref({ linhas: [product.line] })}
                   className="rounded-sm font-mono text-xs tracking-wide text-mute-strong hover:text-ink"
                 >
-                  {product.brand.toLowerCase()}
+                  linha {product.line}
                 </Link>
                 {(soldOut || product.badge) && <ProductBadge badge={soldOut ? "esgotado" : product.badge!} />}
               </div>
@@ -122,9 +122,9 @@ export default async function ProductPage({ params }: PageProps<"/produto/[slug]
                   <BadgeCheck className="size-4" strokeWidth={1.5} aria-hidden="true" />
                 </span>
                 <span>
-                  <span className="block font-medium">selo de autenticidade</span>
+                  <span className="block font-medium">conferido antes do envio</span>
                   <span className="text-xs text-ink-soft">
-                    Conferido por especialista antes do envio. Vai com nota fiscal e lacre numerado.
+                    Cada peça é revisada (costura, cola, tamanho) antes de sair. Vai com nota fiscal.
                   </span>
                 </span>
               </li>

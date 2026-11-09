@@ -12,7 +12,7 @@ import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { products } from "@/data/products";
 
-const sampleProducts = ["nike-dunk-low-retro-panda", "new-balance-x90-pink", "stussy-graphic-hoodie-black", "stussy-low-pro-cap-black"]
+const sampleProducts = ["court-low-branco", "knit-slip-oliva", "runner-nylon-cinza", "bone-aba-curva-mostarda"]
   .map((slug) => products.find((p) => p.slug === slug))
   .filter((p) => p !== undefined);
 
@@ -103,7 +103,7 @@ export default function DesignSystemPage() {
           </Specimen>
           <Specimen label="h1 · unbounded 500">
             <p className="max-w-[20ch] font-display text-[clamp(1.75rem,3vw,2.5rem)] leading-[1.1] font-medium">
-              Só original. Só estilo.
+              Peças de verdade. Só estilo.
             </p>
           </Specimen>
           <Specimen label="body · lexend exa 400">

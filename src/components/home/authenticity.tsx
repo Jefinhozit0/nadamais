@@ -1,16 +1,16 @@
-import { BadgeCheck, PackageCheck, ReceiptText, RotateCcw } from "lucide-react";
+import { PackageCheck, ReceiptText, RotateCcw, Ruler } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 const promises: { icon: LucideIcon; title: string; text: string }[] = [
   {
-    icon: BadgeCheck,
-    title: "procedência verificada",
-    text: "Cada par passa por conferência de etiqueta, costura, caixa e SKU antes de sair daqui.",
+    icon: Ruler,
+    title: "peça conferida antes de sair",
+    text: "Costura, cola, tamanho e acabamento revisados um a um. Se não passar, não vai.",
   },
   {
     icon: ReceiptText,
     title: "nota fiscal em todo pedido",
-    text: "Compra registrada, garantia do fabricante e nada de “importado sem nota”.",
+    text: "Compra registrada, com garantia contra defeito de fabricação.",
   },
   {
     icon: RotateCcw,
@@ -24,20 +24,20 @@ const promises: { icon: LucideIcon; title: string; text: string }[] = [
   },
 ];
 
-/** Bloco de confiança — resposta direta para quem tem medo de comprar réplica. */
+/** Bloco de confiança: o que a loja garante em cada pedido. */
 export function Authenticity() {
   return (
     <div className="grid gap-10 lg:grid-cols-12">
       <div className="lg:col-span-5">
         <h2
-          id="autenticidade-title"
+          id="qualidade-title"
           className="font-display text-[clamp(2rem,5vw,3.75rem)] leading-[0.95] font-semibold tracking-[-0.03em]"
         >
-          100% original. Ou seu dinheiro de volta.
+          Feito para durar. Ou a gente troca.
         </h2>
         <p className="mt-5 max-w-[42ch] text-sm text-ink-soft">
-          Trabalhamos só com distribuidores oficiais e lojas parceiras auditadas. Se algum item não for original, você
-          recebe o valor integral, sem discussão.
+          Desenho próprio, materiais escolhidos a dedo e nenhum logo emprestado. O que está na foto é o que chega na
+          sua casa.
         </p>
       </div>
       <ul className="lg:col-span-6 lg:col-start-7">

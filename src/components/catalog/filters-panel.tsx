@@ -3,7 +3,6 @@
 import { ChevronDown } from "lucide-react";
 import type { ReactNode } from "react";
 import {
-  brandSlugs,
   catalogHref,
   categoryLabels,
   colorFamilies,
@@ -12,7 +11,7 @@ import {
   type Facets,
 } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
-import type { Brand, ColorFamily } from "@/types/product";
+import type { ColorFamily, Line } from "@/types/product";
 import { useCatalogNav } from "./catalog-provider";
 
 function toggle<T>(list: readonly T[], value: T): T[] {
@@ -99,17 +98,16 @@ export function FiltersPanel({ filters, facets }: { filters: CatalogFilters; fac
         </ul>
       </Group>
 
-      <Group title="marca">
+      <Group title="linha">
         <ul className="flex flex-col gap-1">
-          {facets.marcas.map(({ value, count }) => (
+          {facets.linhas.map(({ value, count }) => (
             <li key={value}>
               <label className="flex min-h-10 cursor-pointer items-center gap-3 rounded-sm has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ink">
                 <input
                   type="checkbox"
-                  checked={filters.marcas.includes(value)}
-                  onChange={() => go({ marcas: toggle<Brand>(filters.marcas, value) })}
+                  checked={filters.linhas.includes(value)}
+                  onChange={() => go({ linhas: toggle<Line>(filters.linhas, value) })}
                   className="size-4 accent-ink"
-                  data-brand={brandSlugs[value]}
                 />
                 <span>{value}</span>
                 <Count n={count} />

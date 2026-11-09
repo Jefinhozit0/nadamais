@@ -8,18 +8,18 @@ import { CatalogToolbar } from "@/components/catalog/catalog-toolbar";
 import { FiltersPanel } from "@/components/catalog/filters-panel";
 import { ProductCard } from "@/components/product/product-card";
 import { buttonVariants } from "@/components/ui/button";
-import { brandSlugs, catalogHref, categoryLabels, parseCatalogParams, type CatalogFilters } from "@/lib/catalog";
+import { catalogHref, categoryLabels, parseCatalogParams, type CatalogFilters } from "@/lib/catalog";
 import { getTrending, listProducts } from "@/server/queries/products";
 
 export const metadata: Metadata = {
   title: "Catálogo",
-  description: "Sneakers, roupas e acessórios originais de Nike, Jordan, adidas, New Balance, Stüssy e Carhartt WIP.",
+  description: "Tênis, moletons, camisetas, bonés e bolsas das linhas essencial, court, volume e utility.",
   alternates: { canonical: "/catalogo" },
 };
 
 function titleFor(filters: CatalogFilters): string {
   if (filters.q) return `“${filters.q}”`;
-  if (filters.marcas.length === 1 && !filters.categoria) return filters.marcas[0]!.toLowerCase();
+  if (filters.linhas.length === 1 && !filters.categoria) return `linha ${filters.linhas[0]}`;
   if (filters.categoria) return categoryLabels[filters.categoria];
   if (filters.ordem === "novos") return "novos drops";
   return "catálogo";
@@ -46,9 +46,7 @@ async function Catalog({ searchParams }: { searchParams: PageProps<"/catalogo">[
         <Form action="/catalogo" className="w-full md:max-w-sm" role="search">
           {/* preserva os filtros atuais ao buscar */}
           {filters.categoria && <input type="hidden" name="categoria" value={filters.categoria} />}
-          {filters.marcas.length > 0 && (
-            <input type="hidden" name="marca" value={filters.marcas.map((m) => brandSlugs[m]).join(",")} />
-          )}
+          {filters.linhas.length > 0 && <input type="hidden" name="linha" value={filters.linhas.join(",")} />}
           <label htmlFor="catalog-q" className="sr-only">
             Buscar no catálogo
           </label>
@@ -59,7 +57,7 @@ async function Catalog({ searchParams }: { searchParams: PageProps<"/catalogo">[
               name="q"
               type="search"
               defaultValue={filters.q}
-              placeholder="buscar modelo, marca, cor…"
+              placeholder="buscar modelo, cor, linha…"
               className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-mute-strong"
             />
             <button type="submit" className={buttonVariants({ size: "sm" })}>

@@ -1,6 +1,8 @@
 # nada mais — e-commerce de sneakers e streetwear
 
-Loja de sneakers e streetwear originais (Nike, Jordan, adidas, New Balance, Stüssy, Carhartt WIP) para o mercado brasileiro.
+Loja de sneakers e streetwear de desenho próprio para o mercado brasileiro, organizada em linhas (essencial, court, volume, utility).
+
+> **Política de catálogo:** a loja não vende produtos com marcas registradas de terceiros. Cadastre só produtos de marca própria, peças sem marca ou de fornecedores *white label*.
 
 > "nada mais" é um nome provisório. Troque em `src/config/site.ts` e tudo acompanha.
 
@@ -32,7 +34,7 @@ pnpm start        # serve o build
 pnpm lint
 ```
 
-Os dados ainda são mock (`src/data/products.ts`, 27 produtos). O seed do banco entra na Fase 4.
+Os dados ainda são mock (`src/data/products.ts`, 25 produtos sem marca de terceiros). O seed do banco entra na Fase 4.
 
 ## Checkout e Mercado Pago
 

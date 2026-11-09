@@ -6,15 +6,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { brandSlugs } from "@/lib/catalog";
+import { catalogHref } from "@/lib/catalog";
 import { formatBRL } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { SearchSuggestion } from "@/server/queries/products";
 
-const popular = ["dunk", "samba", "jordan 1", "new balance", "moletom"];
+const popular = ["court", "chunky", "moletom", "cargo", "boné"];
 
 function hrefFor(s: SearchSuggestion): string {
-  return s.kind === "product" ? `/produto/${s.slug}` : `/catalogo?marca=${brandSlugs[s.brand]}`;
+  return s.kind === "product" ? `/produto/${s.slug}` : catalogHref({ linhas: [s.line] });
 }
 
 /**
@@ -114,8 +114,8 @@ export function SearchDialog() {
             aria-controls={listId}
             aria-autocomplete="list"
             aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
-            aria-label="Buscar por produto, marca ou modelo"
-            placeholder="dunk, samba, moletom…"
+            aria-label="Buscar por produto, linha ou cor"
+            placeholder="court, moletom, cargo…"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={onKeyDown}
@@ -146,13 +146,13 @@ export function SearchDialog() {
             </div>
           ) : visible.length === 0 ? (
             <p className="p-3 text-sm text-mute-strong">
-              {loading ? "buscando…" : `Nada para “${query.trim()}”. Tente o nome do modelo ou da marca.`}
+              {loading ? "buscando…" : `Nada para “${query.trim()}”. Tente o nome do modelo, a cor ou a linha.`}
             </p>
           ) : (
             <ul id={listId} role="listbox" aria-label="Sugestões">
               {visible.map((s, index) => (
                 <li
-                  key={s.kind === "product" ? s.slug : s.brand}
+                  key={s.kind === "product" ? s.slug : s.line}
                   id={`${listId}-${index}`}
                   role="option"
                   aria-selected={index === active}
@@ -169,7 +169,7 @@ export function SearchDialog() {
                         {s.image && <Image src={s.image} alt="" fill sizes="44px" className="object-cover" />}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block font-mono text-micro text-mute-strong">{s.brand.toLowerCase()}</span>
+                        <span className="block font-mono text-micro text-mute-strong">linha {s.line}</span>
                         <span className="block truncate text-sm lowercase">{s.name}</span>
                       </span>
                       <span className="font-mono text-xs tabular-nums">{formatBRL(s.price)}</span>
@@ -177,10 +177,10 @@ export function SearchDialog() {
                   ) : (
                     <>
                       <span className="flex size-11 shrink-0 items-center justify-center rounded-sm border border-ink font-display text-xs">
-                        {s.brand.slice(0, 2).toLowerCase()}
+                        {s.line.slice(0, 2)}
                       </span>
                       <span className="flex-1 text-sm">
-                        tudo de <strong className="font-medium">{s.brand}</strong>
+                        linha <strong className="font-medium">{s.line}</strong>
                         <span className="ml-2 font-mono text-micro text-mute-strong">{s.count} produtos</span>
                       </span>
                       <ArrowUpRight className="size-4" strokeWidth={1.5} aria-hidden="true" />

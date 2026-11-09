@@ -1,12 +1,13 @@
 import { Authenticity } from "@/components/home/authenticity";
-import { BrandIndex } from "@/components/home/brand-index";
+import { LineIndex } from "@/components/home/line-index";
 import { CategoryTiles } from "@/components/home/category-tiles";
 import { Hero } from "@/components/home/hero";
 import { ProductRail } from "@/components/home/product-rail";
 import { SectionHeading } from "@/components/home/section-heading";
 import { ProductCard } from "@/components/product/product-card";
+import { lines } from "@/data/products";
 import {
-  getBrandSummary,
+  getLineSummary,
   getCategoryCovers,
   getFeaturedDrop,
   getNewDrops,
@@ -14,11 +15,11 @@ import {
 } from "@/server/queries/products";
 
 export default async function HomePage() {
-  const [drop, newDrops, trending, brands, covers] = await Promise.all([
+  const [drop, newDrops, trending, lineSummary, covers] = await Promise.all([
     getFeaturedDrop(),
     getNewDrops(8),
     getTrending(8),
-    getBrandSummary(),
+    getLineSummary(),
     getCategoryCovers(),
   ]);
 
@@ -47,14 +48,15 @@ export default async function HomePage() {
           <CategoryTiles covers={covers} />
         </section>
 
-        <section aria-labelledby="marcas-title">
-          <SectionHeading id="marcas-title" title="marcas" />
+        <section aria-labelledby="linhas-title">
+          <SectionHeading id="linhas-title" title="linhas" />
           <div className="mt-8">
-            <BrandIndex
-              rows={brands.map((b) => ({
-                brand: b.brand,
-                count: b.count,
-                cover: b.cover?.images[0] ? { src: b.cover.images[0].src } : undefined,
+            <LineIndex
+              rows={lineSummary.map((l) => ({
+                line: l.line,
+                description: lines.find((x) => x.slug === l.line)?.description ?? "",
+                count: l.count,
+                cover: l.cover?.images[0] ? { src: l.cover.images[0].src } : undefined,
               }))}
             />
           </div>
@@ -71,7 +73,7 @@ export default async function HomePage() {
           </ul>
         </section>
 
-        <section id="autenticidade" aria-labelledby="autenticidade-title">
+        <section id="qualidade" aria-labelledby="qualidade-title">
           <Authenticity />
         </section>
       </div>

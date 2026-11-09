@@ -61,11 +61,11 @@ export function Hero({ drop }: { drop: Product }) {
           <ShieldCheck className="size-5" strokeWidth={1.5} aria-hidden="true" />
         </span>
         <p className="mt-4 font-display text-[clamp(1.5rem,2.4vw,2rem)] leading-[1.1] font-medium tracking-tight">
-          Só original. Nada além do necessário.
+          Peças de verdade. Nada além do necessário.
         </p>
         <p className="mt-3 max-w-[34ch] text-xs leading-relaxed text-ink-soft">
-          Sneakers e streetwear de Nike, Jordan, adidas, New Balance, Stüssy e Carhartt WIP. Procedência verificada em
-          cada par.
+          Tênis, moletons e acessórios de desenho próprio. Couro, malha pesada e acabamento conferido peça por
+          peça.
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
           <Link href="/catalogo?categoria=sneakers" className={buttonVariants({ variant: "solid" })}>

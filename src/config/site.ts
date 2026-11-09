@@ -1,13 +1,13 @@
 /**
- * Configuração central da marca. A loja ainda não tem nome:
+ * Configuração central da loja. O nome é provisório:
  * troque `name` aqui e tudo (header, footer, metadata) acompanha.
  */
 export const siteConfig = {
   name: "nada mais",
   shortName: "nada mais",
-  tagline: "Sneakers e streetwear originais. Sem excesso.",
+  tagline: "Sneakers e streetwear de desenho próprio. Sem excesso.",
   description:
-    "Sneakers e streetwear de Nike, Jordan, Adidas, New Balance, Stüssy e Carhartt WIP. Produtos 100% originais, envio para todo o Brasil, Pix, cartão e boleto.",
+    "Tênis, moletons, camisetas e acessórios de desenho próprio. Peças conferidas uma a uma, envio para todo o Brasil, Pix, cartão e boleto.",
   locale: "pt-BR",
   currency: "BRL",
   maxInstallments: 10,
@@ -53,7 +53,7 @@ export const footerNav: readonly { title: string; items: readonly NavItem[] }[] 
     title: "sobre",
     items: [
       { label: "quem somos", href: "/sobre" },
-      { label: "autenticidade", href: "/sobre#autenticidade" },
+      { label: "como garantimos", href: "/sobre#qualidade" },
       { label: "privacidade", href: "/privacidade" },
     ],
   },

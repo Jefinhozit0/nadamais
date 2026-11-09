@@ -28,15 +28,29 @@ function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 }
 
-/** Mensagens do Supabase Auth traduzidas e sem vazar detalhe interno. */
-function translate(message: string): string {
-  const m = message.toLowerCase();
+/** Erros do Supabase Auth traduzidos pelo código (com o texto como reserva), sem vazar detalhe interno. */
+function translate(error: { code?: string; message: string }): string {
+  switch (error.code) {
+    case "invalid_credentials":
+      return "E-mail ou senha incorretos.";
+    case "email_not_confirmed":
+      return "Confirme seu e-mail antes de entrar — enviamos um link na hora do cadastro.";
+    case "user_already_exists":
+    case "email_exists":
+      return "Já existe uma conta com este e-mail. Entre ou recupere o acesso.";
+    case "weak_password":
+      return "Senha fraca. Use pelo menos 8 caracteres, misturando letras e números.";
+    case "email_address_invalid":
+      return "Esse e-mail não parece válido. Confira o endereço.";
+    case "over_email_send_rate_limit":
+      return "Limite de envio de e-mails atingido. Tente de novo mais tarde ou entre com e-mail e senha, se já tiver conta.";
+    case "over_request_rate_limit":
+      return "Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.";
+  }
+  const m = error.message.toLowerCase();
   if (m.includes("invalid login credentials")) return "E-mail ou senha incorretos.";
-  if (m.includes("email address") && m.includes("invalid")) return "Esse e-mail não parece válido. Confira o endereço.";
-  if (m.includes("email not confirmed")) return "Confirme seu e-mail antes de entrar — enviamos um link na hora do cadastro.";
-  if (m.includes("already registered") || m.includes("already been registered")) return "Já existe uma conta com este e-mail. Entre ou recupere o acesso.";
-  if (m.includes("password") && (m.includes("weak") || m.includes("at least"))) return "Senha fraca. Use pelo menos 8 caracteres, misturando letras e números.";
-  if (m.includes("rate limit") || m.includes("too many")) return "Muitas tentativas. Espere um minuto e tente de novo.";
+  if (m.includes("email rate limit")) return "Limite de envio de e-mails atingido. Tente de novo mais tarde ou entre com e-mail e senha, se já tiver conta.";
+  if (m.includes("rate limit") || m.includes("too many")) return "Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.";
   return "Não deu certo agora. Tente de novo em instantes.";
 }
 
@@ -53,7 +67,7 @@ export async function signIn(_prev: AuthState, formData: FormData): Promise<Auth
   if (!parsed.success) return { fields: firstErrors(parsed.error), values };
   const supabase = await createSupabaseServer();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error) return { error: translate(error.message), values };
+  if (error) return { error: translate(error), values };
   redirect(safeNext(formData.get("next")));
 }
 
@@ -81,7 +95,7 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
       emailRedirectTo: `${siteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
-  if (error) return { error: translate(error.message), values };
+  if (error) return { error: translate(error), values };
   // Com "Confirm email" desligado no Supabase, já volta com sessão
   if (data.session) redirect(next);
   return { message: `Enviamos um link de confirmação para ${parsed.data.email}. Abra o e-mail para ativar a conta.` };
@@ -97,7 +111,7 @@ export async function sendMagicLink(_prev: AuthState, formData: FormData): Promi
     email: parsed.data,
     options: { emailRedirectTo: `${siteUrl()}/auth/callback?next=${encodeURIComponent(next)}`, shouldCreateUser: true },
   });
-  if (error) return { error: translate(error.message), values };
+  if (error) return { error: translate(error), values };
   return { message: `Link de acesso enviado para ${parsed.data}. Ele vale por 1 hora.` };
 }
 

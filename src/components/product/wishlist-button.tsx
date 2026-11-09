@@ -15,7 +15,9 @@ export function WishlistButton({ productName, className }: { productName: string
       aria-label={saved ? `Remover ${productName} dos favoritos` : `Favoritar ${productName}`}
       onClick={() => setSaved((value) => !value)}
       className={cn(
-        "inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-transparent text-ink transition-colors hover:border-ink",
+        // 36px visível, 44px de área de toque via pseudo-elemento
+        "relative inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-transparent text-ink transition-colors hover:border-ink",
+        "before:absolute before:-inset-1 before:content-['']",
         className,
       )}
     >

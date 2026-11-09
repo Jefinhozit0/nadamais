@@ -16,7 +16,7 @@ type ProductMediaProps = {
  */
 export function ProductMedia({
   product,
-  sizes = "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw",
+  sizes = "(min-width: 1280px) 22vw, (min-width: 768px) 33vw, 50vw",
   priority = false,
   className,
 }: ProductMediaProps) {
@@ -33,7 +33,7 @@ export function ProductMedia({
             sizes={sizes}
             priority={priority}
             className={cn(
-              "object-contain p-6 transition-[opacity,scale] duration-500 ease-out-expo group-hover/card:scale-[1.03]",
+              "object-contain p-[8%] transition-[opacity,scale] duration-500 ease-out-expo group-hover/card:scale-[1.03]",
               secondary && "group-hover/card:opacity-0",
             )}
           />
@@ -43,7 +43,7 @@ export function ProductMedia({
               alt=""
               fill
               sizes={sizes}
-              className="object-contain p-6 opacity-0 transition-opacity duration-500 ease-out-expo group-hover/card:opacity-100"
+              className="object-contain p-[8%] opacity-0 transition-opacity duration-500 ease-out-expo group-hover/card:opacity-100"
             />
           )}
         </>
@@ -51,12 +51,12 @@ export function ProductMedia({
         <div
           role="img"
           aria-label={product.name}
-          className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-6 text-center"
+          className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center"
         >
-          <span className="text-grain font-display text-[clamp(1.75rem,5vw,2.75rem)] leading-[0.9] font-semibold tracking-tight lowercase transition-transform duration-500 ease-out-expo group-hover/card:scale-[1.04]">
+          <span className="text-grain font-display text-[clamp(1.375rem,4.5vw,2.75rem)] leading-[0.9] font-semibold tracking-tight text-balance lowercase transition-transform duration-500 ease-out-expo group-hover/card:scale-[1.04]">
             {product.shortName}
           </span>
-          <span className="font-mono text-micro text-mute-strong">{product.sku}</span>
+          <span className="font-mono text-micro text-ink-soft">{product.sku}</span>
         </div>
       )}
     </div>

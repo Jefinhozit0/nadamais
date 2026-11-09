@@ -12,8 +12,8 @@ export function Price({ price, compareAtPrice, showInstallments = false, classNa
   const off = compareAtPrice ? discountPercent(price, compareAtPrice) : 0;
 
   return (
-    <div className={cn("flex flex-col items-end gap-0.5 font-mono", className)}>
-      <p className="flex items-baseline gap-2 text-sm">
+    <div className={cn("flex flex-col items-end gap-0.5 font-mono tabular-nums", className)}>
+      <p className="flex flex-wrap items-baseline gap-x-2 text-sm">
         {off > 0 && compareAtPrice && (
           <>
             <span className="sr-only">De</span>

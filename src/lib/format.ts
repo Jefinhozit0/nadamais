@@ -17,6 +17,12 @@ export function formatInstallments(
   return `${max}x de ${formatBRL(Math.ceil(cents / max))}`;
 }
 
+/** "01310100" → "01310-100". Ignora tudo que não for dígito. */
+export function maskCep(input: string): string {
+  const digits = input.replace(/\D/g, "").slice(0, 8);
+  return digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+}
+
 export function discountPercent(price: number, compareAt: number): number {
   if (compareAt <= price) return 0;
   return Math.round(((compareAt - price) / compareAt) * 100);

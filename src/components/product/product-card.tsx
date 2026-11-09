@@ -40,7 +40,7 @@ export function ProductCard({ product, sizes, priority, className }: ProductCard
 
         <div className="absolute inset-x-2.5 top-2.5 flex items-start justify-between gap-2 md:inset-x-3 md:top-3">
           {badge ? <ProductBadge badge={badge} className="min-w-0 truncate" /> : <span />}
-          <WishlistButton productName={product.name} className="relative z-10 -mt-1.5 -mr-1.5" />
+          <WishlistButton productId={product.id} productName={product.name} className="relative z-10 -mt-1.5 -mr-1.5" />
         </div>
       </div>
 

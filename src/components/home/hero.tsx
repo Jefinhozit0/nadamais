@@ -36,7 +36,7 @@ export function Hero({ drop }: { drop: Product }) {
       {/* Título: palavras nas laterais. No mobile empilham (esq. em cima, dir. embaixo). */}
       <h1
         id="hero-title"
-        className="relative z-0 mt-6 flex items-baseline justify-between font-display text-[12.5vw] leading-[0.86] font-semibold tracking-[-0.035em] lg:absolute lg:inset-x-8 lg:top-[26%] lg:mt-0 lg:text-[clamp(5.5rem,10vw,10rem)]"
+        className="relative z-0 mt-6 flex items-baseline justify-between font-display text-[12.5vw] leading-[0.86] font-semibold tracking-[-0.035em] lg:absolute lg:inset-x-8 lg:top-[26%] lg:mt-0 lg:text-[clamp(5rem,9.5vw,9.5rem)]"
       >
         <span className="block overflow-hidden pb-[0.06em]">
           <span className="text-grain block animate-rise">{left}</span>
@@ -52,11 +52,11 @@ export function Hero({ drop }: { drop: Product }) {
       {/* Recorte: sobrepõe o título (z-10), ancorado na base */}
       <HeroFigure
         image={heroImage}
-        className="relative z-10 mx-auto -mt-[4vw] aspect-[699/1800] h-[min(108vw,520px)] max-w-none lg:absolute lg:bottom-0 lg:left-1/2 lg:mt-0 lg:h-[96%] lg:-translate-x-1/2"
+        className="relative z-10 mx-auto -mt-[4vw] aspect-[1051/1800] h-[min(100vw,500px)] max-w-none lg:absolute lg:bottom-0 lg:left-1/2 lg:mt-0 lg:h-[90%] lg:-translate-x-1/2"
       />
 
       {/* Canto inferior esquerdo: manifesto */}
-      <div className="relative z-20 mt-8 max-w-sm pb-8 lg:absolute lg:bottom-10 lg:left-8 lg:mt-0 lg:pb-0">
+      <div className="relative z-20 mt-8 max-w-sm pb-8 lg:max-w-[min(24rem,29vw)] lg:absolute lg:bottom-10 lg:left-8 lg:mt-0 lg:pb-0">
         <span className="inline-flex size-10 items-center justify-center rounded-sm border border-ink bg-canvas">
           <ShieldCheck className="size-5" strokeWidth={1.5} aria-hidden="true" />
         </span>

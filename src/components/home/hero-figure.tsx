@@ -25,7 +25,7 @@ export function HeroFigure({ image, className }: { image: ProductImage; classNam
           fill
           priority
           fetchPriority="high"
-          sizes="(min-width: 1024px) 30vw, 70vw"
+          sizes="(min-width: 1024px) 32vw, 60vw"
           className="object-contain object-bottom"
         />
       </motion.div>

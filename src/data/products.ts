@@ -672,10 +672,10 @@ export const categories: readonly { slug: Category; label: string; description: 
 ];
 
 export const heroImage: ProductImage = {
-  src: "/images/hero/hero-puffer.webp",
-  alt: "Homem de perfil com boné, óculos escuros e jaqueta puffer preta brilhante",
-  width: 699,
+  src: "/images/hero/hero-hoodie.webp",
+  alt: "Homem de frente, em preto e branco, com moletom largo escuro e as mãos nos bolsos",
+  width: 1051,
   height: 1800,
   kind: "cutout",
-  credit: `${U}ahej-5EjHgw`,
+  credit: `${U}M3kSpOY6A6g`,
 };

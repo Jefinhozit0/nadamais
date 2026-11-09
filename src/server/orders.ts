@@ -45,6 +45,7 @@ export type Order = {
   shipping: Pick<ShippingOption, "method" | "label" | "price" | "days">;
   totals: OrderTotals;
   payment: PaymentInfo;
+  trackingCode?: string;
 };
 
 export class OutOfStockError extends Error {
@@ -63,6 +64,7 @@ function toOrder(row: OrderRow): Order {
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     status: row.status,
+    trackingCode: row.trackingCode ?? undefined,
     profileId: row.profileId ?? undefined,
     customer: { name: row.customerName, email: row.customerEmail, cpf: row.customerCpf, phone: row.customerPhone },
     address: row.address as Address,
@@ -191,7 +193,7 @@ export async function listOrdersByProfile(profileId: string, take = 50): Promise
 /** Atualiza status/pagamento. Recusado ou cancelado devolve o estoque (uma única vez). */
 export async function updateOrder(
   id: string,
-  patch: { status?: OrderStatus; payment?: Partial<PaymentInfo> },
+  patch: { status?: OrderStatus; payment?: Partial<PaymentInfo>; trackingCode?: string | null },
 ): Promise<Order | undefined> {
   const releasing = patch.status === "recusado" || patch.status === "cancelado";
   try {
@@ -213,6 +215,7 @@ export async function updateOrder(
         data: {
           ...(patch.status && { status: patch.status }),
           ...(release && { stockReleased: true }),
+          ...(patch.trackingCode !== undefined && { trackingCode: patch.trackingCode }),
           ...(patch.payment && paymentColumns(patch.payment)),
         },
         include: withItems,

@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
     remotePatterns: [{ protocol: "https", hostname: "*.supabase.co", pathname: "/storage/v1/object/public/**" }],
   },
   partialPrefetching: true,
+  // a imagem OG lê a fonte com readFile em tempo de execução: garante que ela vá junto no deploy
+  outputFileTracingIncludes: {
+    "/opengraph-image": ["./src/assets/fonts/**/*"],
+  },
   turbopack: {
     rules: {
       "*.css": {

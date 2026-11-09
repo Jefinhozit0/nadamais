@@ -32,6 +32,8 @@ Outros comandos:
 pnpm build        # build de produção
 pnpm start        # serve o build
 pnpm lint
+pnpm test         # testes unitários (Vitest)
+pnpm test:e2e     # e2e + acessibilidade (Playwright; rode `pnpm build` antes)
 ```
 
 Sem banco configurado, a vitrine usa o catálogo mock (`src/data/products.ts`) e o checkout fica desativado.
@@ -68,13 +70,47 @@ Segurança: o navegador só envia produto, tamanho e quantidade. Preço, estoque
 
 **Provisório:** o frete vem de uma tabela por região (`src/lib/shipping.ts`). Para produção, troque `quoteShipping` por Melhor Envio, Correios ou Frenet.
 
+## Testes
+
+- **Unitários** (`pnpm test`, `tests/unit/`): CPF/telefone/CEP, preço e parcelas, tamanhos, frete por CEP, filtros e ordenação do catálogo, preço autoritativo do pedido (estoque, desconto Pix) e validação do checkout. Não precisam de banco.
+- **E2E** (`pnpm test:e2e`, `tests/e2e/`): sobe o build de produção na porta 4310 (mude com `E2E_PORT`) e testa em desktop e celular: catálogo, produto → sacola → checkout até a etapa de pagamento, páginas institucionais, SEO e proteção da conta. **Não cria pedidos nem contas**, então pode rodar contra o banco real.
+- **Acessibilidade** (dentro do e2e): axe-core verifica WCAG 2.2 A/AA em 9 páginas, nos temas claro e escuro.
+
+Na primeira vez: `pnpm exec playwright install chromium`.
+
+## SEO e páginas institucionais
+
+- `/sobre`, `/trocas-e-devolucoes`, `/privacidade` (LGPD) e `/faq`. Dados da empresa (razão social, CNPJ, endereço, e-mails) ficam em `siteConfig.legal`, hoje com **valores provisórios**.
+- `sitemap.xml` (páginas e produtos, com imagens), `robots.txt` (bloqueia admin, conta, checkout, pedido e API), imagem de compartilhamento padrão (`src/app/opengraph-image.tsx`), canonical por página e JSON-LD (Product com preço/estoque/política de troca, BreadcrumbList e FAQPage).
+
+## Antes de lançar
+
+- [ ] Preencher `siteConfig.legal` (razão social, CNPJ, endereço, e-mails) e o nome definitivo da loja.
+- [ ] Revisar `/privacidade` e `/trocas-e-devolucoes` com um profissional jurídico.
+- [ ] Trocar as fotos do Unsplash por fotos próprias dos produtos.
+- [ ] Credenciais de **produção** do Mercado Pago + webhook apontando para o domínio.
+- [ ] Frete real (Melhor Envio, Correios ou Frenet) no lugar da tabela.
+- [ ] SMTP próprio no Supabase (Authentication → Emails): o embutido manda poucos e-mails por hora.
+- [ ] Gerar novas chaves/senha do Supabase se alguma já foi exposta fora do `.env.local`.
+
+## Deploy (Vercel)
+
+1. Importe o repositório na Vercel (framework detectado: Next.js; o build já roda `prisma generate`).
+2. Em **Settings → Environment Variables**, cadastre as mesmas variáveis do `.env.example`, com `NEXT_PUBLIC_SITE_URL` = domínio final (ex.: `https://sualoja.com.br`).
+3. Migrações não rodam no build: aplique com `pnpm db:migrate` (usa `DIRECT_URL`) antes de publicar uma versão que mude o schema.
+4. No Supabase, em **Authentication → URL Configuration**: Site URL = domínio final e `https://SEU_DOMINIO/auth/callback` em Redirect URLs.
+5. No Mercado Pago, aponte o webhook para `https://SEU_DOMINIO/api/webhooks/mercadopago`.
+6. Depois do primeiro deploy: envie `https://SEU_DOMINIO/sitemap.xml` no Google Search Console.
+
 ## Estrutura
 
 ```
 docs/                 design system (fonte única da verdade visual) e créditos de imagens
 public/images/        fotos de produto e recorte do hero
-src/app/              rotas: home, /catalogo, /produto/[slug], /carrinho, /checkout, /pedido/[id], /entrar, /cadastro, /conta/*, /api/*
-src/components/       ui/ (shadcn customizado), layout/, product/, catalog/, home/, search/, cart/, checkout/, order/
+src/app/              rotas: home, /catalogo, /produto/[slug], /carrinho, /checkout, /pedido/[id], /entrar, /cadastro, /conta/*, /admin/*, /api/*,
+                      (institucional)/ sobre, trocas, privacidade, faq; sitemap, robots, opengraph-image
+src/components/       ui/ (shadcn customizado), layout/, product/, catalog/, home/, search/, cart/, checkout/, order/, account/, admin/, content/, seo/
+tests/                unit/ (Vitest) e e2e/ (Playwright + axe)
 src/config/site.ts    nome, textos, parcelas, desconto Pix, frete grátis
 src/data/             catálogo mock
 src/lib/              formatação BRL, CPF/telefone/CEP, esquemas zod, frete, filtros, tamanhos

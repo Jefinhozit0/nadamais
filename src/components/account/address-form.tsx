@@ -42,13 +42,14 @@ export function AddressForm() {
 
   if (!open) {
     return (
-      <Button variant="outline" onClick={() => setOpen(true)}>
+      <Button variant="outline" className="self-start" onClick={() => setOpen(true)}>
         adicionar endereço
       </Button>
     );
   }
 
   const f = state.fields ?? {};
+  const v = state.values ?? {};
   return (
     <form ref={formRef} action={action} noValidate className="grid gap-4 rounded-card border border-line p-5 sm:grid-cols-6">
       {state.error && (
@@ -56,8 +57,8 @@ export function AddressForm() {
           {state.error}
         </p>
       )}
-      <TextField label="apelido" name="label" defaultValue="casa" fieldClassName="sm:col-span-2" error={f.label} />
-      <TextField label="quem recebe" name="recipient" autoComplete="name" fieldClassName="sm:col-span-4" error={f.recipient} />
+      <TextField label="apelido" name="label" defaultValue={v.label ?? "casa"} fieldClassName="sm:col-span-2" error={f.label} />
+      <TextField label="quem recebe" name="recipient" autoComplete="name" defaultValue={v.recipient} fieldClassName="sm:col-span-4" error={f.recipient} />
       <TextField
         label="cep"
         name="cep"
@@ -81,8 +82,8 @@ export function AddressForm() {
         fieldClassName="sm:col-span-4"
         error={f.street}
       />
-      <TextField label="número" name="number" inputMode="numeric" fieldClassName="sm:col-span-2" error={f.number} />
-      <TextField label="complemento (opcional)" name="complement" fieldClassName="sm:col-span-4" />
+      <TextField label="número" name="number" inputMode="numeric" defaultValue={v.number} fieldClassName="sm:col-span-2" error={f.number} />
+      <TextField label="complemento (opcional)" name="complement" defaultValue={v.complement} fieldClassName="sm:col-span-4" />
       <TextField
         label="bairro"
         name="district"

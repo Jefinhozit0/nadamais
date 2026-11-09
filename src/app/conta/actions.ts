@@ -12,7 +12,14 @@ import { db } from "@/server/db";
  * nunca confia em ids de usuário vindos do formulário.
  */
 
-export type FormState = { ok?: boolean; error?: string; fields?: Record<string, string> };
+/** `values` devolve o que foi digitado: o React 19 limpa o formulário após cada envio. */
+export type FormState = { ok?: boolean; error?: string; fields?: Record<string, string>; values?: Record<string, string> };
+
+function formValues(formData: FormData): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [k, v] of formData) if (typeof v === "string" && !k.startsWith("$")) out[k] = v;
+  return out;
+}
 
 function fieldMap(error: z.ZodError): Record<string, string> {
   const out: Record<string, string> = {};
@@ -43,7 +50,7 @@ export async function updateProfile(_prev: FormState, formData: FormData): Promi
     cpf: formData.get("cpf") ?? "",
     phone: formData.get("phone") ?? "",
   });
-  if (!parsed.success) return { fields: fieldMap(parsed.error) };
+  if (!parsed.success) return { fields: fieldMap(parsed.error), values: formValues(formData) };
   await db.profile.update({
     where: { id: profile.id },
     data: { name: parsed.data.name, cpf: parsed.data.cpf || null, phone: parsed.data.phone || null },
@@ -61,9 +68,9 @@ export async function addAddress(_prev: FormState, formData: FormData): Promise<
   const profile = await getProfile();
   if (!profile) return { error: "Sua sessão expirou. Entre de novo." };
   const parsed = newAddressSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { fields: fieldMap(parsed.error) };
+  if (!parsed.success) return { fields: fieldMap(parsed.error), values: formValues(formData) };
   const count = await db.address.count({ where: { profileId: profile.id } });
-  if (count >= 10) return { error: "Limite de 10 endereços. Remova um antes de adicionar." };
+  if (count >= 10) return { error: "Limite de 10 endereços. Remova um antes de adicionar.", values: formValues(formData) };
   const { cep, ...rest } = parsed.data;
   await db.address.create({ data: { ...rest, cep, profileId: profile.id, isDefault: count === 0 } });
   revalidatePath("/conta/enderecos");

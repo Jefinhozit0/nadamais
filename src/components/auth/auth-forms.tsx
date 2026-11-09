@@ -78,7 +78,15 @@ export function SignInForm({ next, linkError }: { next: string; linkError?: bool
       {mode === "password" ? (
         <form action={passwordAction} className="flex flex-col gap-4" noValidate>
           <input type="hidden" name="next" value={next} />
-          <TextField label="e-mail" name="email" type="email" autoComplete="email" required error={passwordState.fields?.email} />
+          <TextField
+            label="e-mail"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            defaultValue={passwordState.values?.email}
+            error={passwordState.fields?.email}
+          />
           <TextField
             label="senha"
             name="password"
@@ -100,6 +108,7 @@ export function SignInForm({ next, linkError }: { next: string; linkError?: bool
             type="email"
             autoComplete="email"
             required
+            defaultValue={linkState.values?.email}
             error={linkState.fields?.email}
             hint="Sem senha: mandamos um link que te loga com um clique."
           />
@@ -130,8 +139,16 @@ export function SignUpForm({ next }: { next: string }) {
       {!state.message && (
         <form action={action} className="flex flex-col gap-4" noValidate>
           <input type="hidden" name="next" value={next} />
-          <TextField label="nome" name="name" autoComplete="name" required error={state.fields?.name} />
-          <TextField label="e-mail" name="email" type="email" autoComplete="email" required error={state.fields?.email} />
+          <TextField label="nome" name="name" autoComplete="name" required defaultValue={state.values?.name} error={state.fields?.name} />
+          <TextField
+            label="e-mail"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            defaultValue={state.values?.email}
+            error={state.fields?.email}
+          />
           <TextField
             label="senha"
             name="password"

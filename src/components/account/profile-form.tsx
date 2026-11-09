@@ -14,7 +14,7 @@ export function ProfileForm({ initial }: { initial: { name: string; email: strin
 
   return (
     <form action={action} noValidate className="grid max-w-xl gap-4 sm:grid-cols-2">
-      <TextField label="nome" name="name" autoComplete="name" defaultValue={initial.name} error={f.name} fieldClassName="sm:col-span-2" />
+      <TextField label="nome" name="name" autoComplete="name" defaultValue={state.values?.name ?? initial.name} error={f.name} fieldClassName="sm:col-span-2" />
       <TextField
         label="e-mail"
         name="email"

@@ -112,6 +112,23 @@ async function OrderView({ params }: { params: PageProps<"/pedido/[id]">["params
         </div>
 
         <PaymentBlock order={order} />
+        {order.trackingCode && (
+          <div className="flex flex-wrap items-center gap-3 rounded-card border border-line p-5">
+            <div className="min-w-0 flex-1">
+              <p className="font-mono text-micro text-mute-strong">código de rastreio</p>
+              <p className="mt-1 font-mono text-lg tracking-wide">{order.trackingCode}</p>
+            </div>
+            <CopyButton value={order.trackingCode} label="copiar código" />
+            <a
+              href={`https://rastreamento.correios.com.br/app/index.php?objetos=${encodeURIComponent(order.trackingCode)}`}
+              target="_blank"
+              rel="noreferrer"
+              className={buttonVariants({ variant: "outline" })}
+            >
+              rastrear
+            </a>
+          </div>
+        )}
         {order.status === "aguardando_pagamento" && <StatusWatcher orderId={order.id} demo={demo} />}
 
         <div className="grid gap-6 border-t border-line-soft pt-6 sm:grid-cols-2">

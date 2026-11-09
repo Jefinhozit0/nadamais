@@ -17,6 +17,11 @@ async function Overview() {
 
   return (
     <div className="flex flex-col gap-10">
+      {profile.role === "admin" && (
+        <Link href="/admin" className={buttonVariants({ variant: "outline", className: "self-start" })}>
+          painel admin
+        </Link>
+      )}
       <p className="font-display text-2xl font-medium tracking-tight">
         {firstName ? `Oi, ${firstName}.` : "Oi."}{" "}
         <span className="text-mute-strong">{profile.email}</span>

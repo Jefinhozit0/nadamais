@@ -1,0 +1,214 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Tema escuro controlado pela classe .dark no <html> (ver theme-script.tsx) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* -------------------------------------------------------------------------- */
+/*  Tokens — fonte: docs/design-system.md                                     */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  /* Primitivos */
+  --paper: #f3f0ee;
+  --canvas: #faf8f7;
+  --haze: #e4e0de;
+  --ink: #121212;
+  --ink-soft: #3a3a3a;
+  --mute: #a9a6a4;
+  --mute-strong: #6e6b69;
+  --line: #121212;
+  --line-soft: #d6d2cf;
+  --drop: #b23a48;
+  --drop-soft: #f1dcde;
+  --success: #2f6b4f;
+
+  /* Ruído usado na textura de grão (opacidade varia por tema) */
+  --grain-opacity: 0.07;
+
+  /* Mapeamento semântico (shadcn) */
+  --background: var(--canvas);
+  --foreground: var(--ink);
+  --card: var(--canvas);
+  --card-foreground: var(--ink);
+  --popover: var(--canvas);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--canvas);
+  --secondary: var(--haze);
+  --secondary-foreground: var(--ink);
+  --muted: var(--haze);
+  --muted-foreground: var(--mute-strong);
+  --accent: var(--haze);
+  --accent-foreground: var(--ink);
+  --destructive: var(--drop);
+  --border: var(--line-soft);
+  --input: var(--line-soft);
+  --ring: var(--ink);
+  --radius: 0.75rem;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --paper: #0b0b0b;
+  --canvas: #141413;
+  --haze: #262524;
+  --ink: #f1eeec;
+  --ink-soft: #c9c5c2;
+  --mute: #7c7976;
+  --mute-strong: #a19d9a;
+  --line: #f1eeec;
+  --line-soft: #2f2d2c;
+  --drop: #da5f6b;
+  --drop-soft: #3a1e22;
+  --success: #6fbf96;
+
+  --grain-opacity: 0.05;
+}
+
+@theme inline {
+  /* Cores do design system */
+  --color-paper: var(--paper);
+  --color-canvas: var(--canvas);
+  --color-haze: var(--haze);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-mute: var(--mute);
+  --color-mute-strong: var(--mute-strong);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-drop: var(--drop);
+  --color-drop-soft: var(--drop-soft);
+  --color-success: var(--success);
+
+  /* Cores semânticas (shadcn) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Tipografia */
+  --font-display: var(--font-unbounded), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-lexend-exa), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-unbounded), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --text-display-xl: clamp(3.25rem, 11vw, 10rem);
+  --text-display-xl--line-height: 0.9;
+  --text-display-xl--letter-spacing: -0.03em;
+  --text-display-lg: clamp(2.5rem, 6vw, 5rem);
+  --text-display-lg--line-height: 0.95;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1.3;
+
+  /* Raios */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.625rem;
+  --radius-lg: var(--radius);
+  --radius-xl: 1rem;
+  --radius-card: 1rem;
+  --radius-frame: 1.25rem;
+
+  /* Movimento */
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Base                                                                      */
+/* -------------------------------------------------------------------------- */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply bg-paper font-sans text-ink antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply min-h-dvh bg-paper text-ink;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--ink);
+    color: var(--canvas);
+  }
+
+  /* Grão sobre a página inteira (fixo, não intercepta cliques) */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Utilitários da estética                                                    */
+/* -------------------------------------------------------------------------- */
+
+/* Texto com grão: o ruído "come" pixels do glifo, como na referência */
+@utility text-grain {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.4 1.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.4 1.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  -webkit-mask-size: 220px;
+  mask-size: 220px;
+}
+
+/* Halo radial atrás de produtos/modelos */
+@utility bg-halo {
+  background-image: radial-gradient(
+    ellipse 60% 55% at 50% 50%,
+    var(--haze) 0%,
+    color-mix(in srgb, var(--haze) 40%, transparent) 45%,
+    transparent 72%
+  );
+}
+
+/* Moldura: o elemento mais reconhecível da referência */
+@utility frame {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-frame);
+  background-color: var(--canvas);
+}

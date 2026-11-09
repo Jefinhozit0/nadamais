@@ -1,12 +1,7 @@
 export type Category = "sneakers" | "roupas" | "acessorios";
 
-export type Brand =
-  | "Nike"
-  | "Jordan"
-  | "Adidas"
-  | "New Balance"
-  | "Stüssy"
-  | "Carhartt WIP";
+/** Linhas (coleções) próprias da loja. Não usamos marcas registradas de terceiros. */
+export type Line = "essencial" | "court" | "volume" | "utility";
 
 /** Família de cor usada no filtro do catálogo (o nome exato da cor fica em `colorway`). */
 export type ColorFamily =
@@ -47,9 +42,9 @@ export type Product = {
   id: string;
   slug: string;
   name: string;
-  /** Nome curto usado em chamadas e placeholders tipográficos (ex.: "dunk low"). */
+  /** Nome curto usado em chamadas e placeholders tipográficos (ex.: "court low"). */
   shortName: string;
-  brand: Brand;
+  line: Line;
   category: Category;
   /** Subtipo exibido na página (ex.: "tênis", "moletom", "gorro"). */
   type: string;

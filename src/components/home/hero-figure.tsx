@@ -17,7 +17,16 @@ export function HeroFigure({ image, className }: { image: ProductImage; classNam
   const y = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 24]);
 
   return (
-    <div ref={ref} className={cn("pointer-events-none", className)}>
+    <div
+      ref={ref}
+      className={cn(
+        "pointer-events-none",
+        // A foto termina na coxa: em vez de um corte seco, a base dissolve no fundo.
+        // A máscara fica no contêiner (parado), então o parallax desliza "para dentro" do degradê.
+        "[mask-image:linear-gradient(to_bottom,#000_66%,transparent_97%)]",
+        className,
+      )}
+    >
       <motion.div style={{ y }} className="relative h-full w-full">
         <Image
           src={image.src}

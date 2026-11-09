@@ -9,10 +9,10 @@ const labels: Record<Badge, string> = {
 };
 
 const styles: Record<Badge, string> = {
-  novo: "border-ink text-ink",
+  novo: "border-ink bg-canvas text-ink",
   drop: "border-drop bg-drop text-canvas",
   ultimas: "border-drop bg-drop-soft text-drop",
-  esgotado: "border-line-soft text-mute-strong",
+  esgotado: "border-line-soft bg-canvas text-mute-strong",
 };
 
 export function ProductBadge({ badge, className }: { badge: Badge; className?: string }) {

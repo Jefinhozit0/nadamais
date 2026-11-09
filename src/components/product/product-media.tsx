@@ -11,8 +11,11 @@ type ProductMediaProps = {
 };
 
 /**
- * Imagem do produto sobre o halo radial. Sem foto cadastrada, mostra um
- * placeholder tipográfico (nome curto em display com grão) — nada de imagem quebrada.
+ * Mídia do card.
+ * - recorte (fundo transparente): fica sobre o halo, com respiro;
+ * - foto (cena inteira): preenche o quadro 4:5;
+ * - sem imagem: placeholder tipográfico (nome curto em display com grão).
+ * Com 2ª imagem, troca no hover.
  */
 export function ProductMedia({
   product,
@@ -21,9 +24,16 @@ export function ProductMedia({
   className,
 }: ProductMediaProps) {
   const [primary, secondary] = product.images;
+  const fit = (kind: "photo" | "cutout") => (kind === "cutout" ? "object-contain p-[8%]" : "object-cover");
 
   return (
-    <div className={cn("bg-halo relative aspect-[4/5] overflow-hidden", className)}>
+    <div
+      className={cn(
+        "relative aspect-[4/5] overflow-hidden",
+        !primary || primary.kind === "cutout" ? "bg-halo" : "bg-haze",
+        className,
+      )}
+    >
       {primary ? (
         <>
           <Image
@@ -33,7 +43,8 @@ export function ProductMedia({
             sizes={sizes}
             priority={priority}
             className={cn(
-              "object-contain p-[8%] transition-[opacity,scale] duration-500 ease-out-expo group-hover/card:scale-[1.03]",
+              fit(primary.kind),
+              "transition-[opacity,scale] duration-700 ease-out-expo group-hover/card:scale-[1.03]",
               secondary && "group-hover/card:opacity-0",
             )}
           />
@@ -43,7 +54,10 @@ export function ProductMedia({
               alt=""
               fill
               sizes={sizes}
-              className="object-contain p-[8%] opacity-0 transition-opacity duration-500 ease-out-expo group-hover/card:opacity-100"
+              className={cn(
+                fit(secondary.kind),
+                "opacity-0 transition-opacity duration-700 ease-out-expo group-hover/card:opacity-100",
+              )}
             />
           )}
         </>

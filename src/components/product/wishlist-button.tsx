@@ -16,7 +16,7 @@ export function WishlistButton({ productName, className }: { productName: string
       onClick={() => setSaved((value) => !value)}
       className={cn(
         // 36px visível, 44px de área de toque via pseudo-elemento
-        "relative inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-transparent text-ink transition-colors hover:border-ink",
+        "relative inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-transparent bg-canvas/85 text-ink backdrop-blur-sm transition-colors hover:border-ink",
         "before:absolute before:-inset-1 before:content-['']",
         className,
       )}

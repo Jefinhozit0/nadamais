@@ -10,8 +10,8 @@ export function Footer() {
   return (
     <footer className="mt-24 border-t border-line-soft px-4 pt-14 pb-6 md:mt-40 md:px-8 md:pt-20">
       <div className="grid gap-12 lg:grid-cols-12">
-        <div className="lg:col-span-5">
-          <p className="max-w-[22ch] font-display text-2xl leading-tight font-medium tracking-tight md:text-3xl">
+        <div className="min-w-0 lg:col-span-5">
+          <p className="max-w-[22ch] font-display text-xl leading-tight font-medium tracking-tight text-balance sm:text-2xl md:text-3xl">
             Só original. Sem excesso.
           </p>
           <p className="mt-4 max-w-[42ch] text-sm text-mute-strong">
@@ -20,7 +20,7 @@ export function Footer() {
           <NewsletterForm className="mt-6 max-w-md" />
         </div>
 
-        <nav aria-label="Rodapé" className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-6 lg:col-start-7">
+        <nav aria-label="Rodapé" className="grid min-w-0 grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-6 lg:col-start-7">
           {footerNav.map((group) => (
             <div key={group.title}>
               <h2 className="font-mono text-micro tracking-wider text-mute-strong uppercase">
@@ -41,7 +41,7 @@ export function Footer() {
       </div>
 
       <div className="mt-16 flex items-end justify-between gap-6 md:mt-24" aria-hidden="true">
-        <span className="text-grain font-display text-display-xl font-semibold lowercase">
+        <span className="text-grain min-w-0 font-display text-display-xl font-semibold lowercase">
           {siteConfig.name}
         </span>
         <Asterisks className="mb-3 hidden size-10 shrink-0 md:block" />
@@ -52,8 +52,8 @@ export function Footer() {
           © {year} {siteConfig.name} · cnpj 00.000.000/0001-00 · {siteConfig.city}
         </p>
         <p>pix · cartão em até {siteConfig.maxInstallments}x · boleto</p>
-        <Link href="/sobre#autenticidade" className="inline-flex items-center gap-1 rounded-sm hover:text-ink">
-          100% original <ArrowUpRight className="size-3" strokeWidth={1.5} />
+        <Link href="/sobre#autenticidade" className="inline-flex items-center gap-1 rounded-sm text-ink hover:underline underline-offset-4">
+          100% original, com selo de procedência <ArrowUpRight className="size-3" strokeWidth={1.5} />
         </Link>
       </div>
     </footer>

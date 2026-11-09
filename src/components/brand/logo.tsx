@@ -14,7 +14,7 @@ export function Logo({ className }: LogoProps) {
     <Link
       href="/"
       aria-label={`${siteConfig.name} — página inicial`}
-      className={cn("inline-flex items-start gap-1.5 rounded-sm", className)}
+      className={cn("inline-flex items-start gap-1.5 rounded-sm py-1.5", className)}
     >
       <span className="font-display text-[0.95rem] leading-[1.05] font-medium tracking-tight">
         {first}

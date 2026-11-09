@@ -28,7 +28,7 @@ export function Header({ cartCount = 0 }: HeaderProps) {
           <NavLinks className="flex items-center gap-8 text-[0.8125rem]" />
         </nav>
 
-        <div className="flex items-center justify-self-end gap-1 md:gap-2">
+        <div className="flex items-center justify-self-end gap-2">
           <Link
             href="/catalogo"
             aria-label="Buscar produtos"
@@ -39,7 +39,7 @@ export function Header({ cartCount = 0 }: HeaderProps) {
           <ThemeToggle className="hidden lg:inline-flex" />
           <Link
             href="/conta"
-            className="hidden rounded-sm px-2 font-mono text-xs text-mute-strong transition-colors hover:text-ink md:inline"
+            className="hidden rounded-sm px-2 py-3 font-mono text-xs text-mute-strong transition-colors hover:text-ink md:inline"
           >
             conta
           </Link>

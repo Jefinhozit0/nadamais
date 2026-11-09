@@ -52,7 +52,7 @@ function NavList({
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "rounded-sm transition-colors duration-200",
+                "inline-block rounded-sm py-2 transition-colors duration-200",
                 active ? "text-ink" : "text-mute-strong hover:text-ink",
                 linkClassName,
               )}

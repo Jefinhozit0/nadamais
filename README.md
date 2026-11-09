@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# sem nome — e-commerce de sneakers e streetwear
 
-## Getting Started
+Loja de sneakers e streetwear originais (Nike, Jordan, adidas, New Balance, Stüssy, Carhartt WIP) para o mercado brasileiro.
 
-First, run the development server:
+> O nome da loja ainda não foi definido. Troque em `src/config/site.ts` e tudo acompanha.
+
+## Stack
+
+- Next.js 16 (App Router, Cache Components) + TypeScript estrito
+- Tailwind CSS v4 + shadcn/ui (Base UI), customizado pelo design system
+- Motion (Framer Motion) para animações pontuais
+- Zustand (sacola persistida no navegador)
+- Próximas fases: PostgreSQL + Prisma, Auth, Mercado Pago (sandbox)
+
+## Rodando localmente
+
+Requisitos: Node 22+ e pnpm.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+cp .env.example .env.local
+pnpm dev          # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Outros comandos:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm build        # build de produção
+pnpm start        # serve o build
+pnpm lint
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Os dados ainda são mock (`src/data/products.ts`, 27 produtos). O seed do banco entra na Fase 4.
 
-## Learn More
+## Estrutura
 
-To learn more about Next.js, take a look at the following resources:
+```
+docs/                 design system (fonte única da verdade visual) e créditos de imagens
+public/images/        fotos de produto e recorte do hero
+src/app/              rotas: home, /catalogo, /produto/[slug], /api/search, /design-system
+src/components/       ui/ (shadcn customizado), layout/, product/, catalog/, home/, search/, cart/
+src/config/site.ts    nome, textos, parcelas, desconto Pix, frete grátis
+src/data/             catálogo mock
+src/lib/              formatação BRL, filtros do catálogo, conversão de tamanhos
+src/server/queries/   acesso a dados (troca para Prisma sem mudar as assinaturas)
+src/store/            sacola (Zustand)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Design
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Tudo segue [docs/design-system.md](docs/design-system.md). A página `/design-system` mostra os tokens e componentes nos temas claro e escuro.
 
-## Deploy on Vercel
+## Imagens
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+As fotos são do Unsplash e servem só para desenvolvimento. Veja [docs/creditos-imagens.md](docs/creditos-imagens.md).

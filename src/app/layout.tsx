@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Lexend_Exa, Unbounded } from "next/font/google";
+import { CartHydrator } from "@/components/cart/cart-hydrator";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { ThemeScript } from "@/components/theme/theme-script";
@@ -25,6 +26,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: {
     default: `${siteConfig.name} — sneakers e streetwear originais`,
     template: `%s · ${siteConfig.name}`,
@@ -63,6 +65,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </main>
           <Footer />
         </div>
+        <CartHydrator />
       </body>
     </html>
   );

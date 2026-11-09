@@ -91,7 +91,7 @@ function Step({
   );
 }
 
-function CheckoutFlow({ live, publicKey, account }: { live: boolean; publicKey?: string; account?: CheckoutAccount }) {
+function CheckoutFlow({ live, publicKey, crypto, account }: { live: boolean; publicKey?: string; crypto: boolean; account?: CheckoutAccount }) {
   const lines = useCart((s) => s.lines);
   const customer = useCheckout((s) => s.customer);
   const address = useCheckout((s) => s.address);
@@ -144,7 +144,7 @@ function CheckoutFlow({ live, publicKey, account }: { live: boolean; publicKey?:
           <DeliveryStep savedAddresses={account?.addresses ?? []} />
         </Step>
         <Step n={3} title="pagamento">
-          <PaymentStep live={live} publicKey={publicKey} totals={{ total: totals.total, subtotal, shipping: shipping?.price ?? 0 }} />
+          <PaymentStep live={live} publicKey={publicKey} crypto={crypto} totals={{ total: totals.total, subtotal, shipping: shipping?.price ?? 0 }} />
         </Step>
         <p className="flex items-center gap-2 border-t border-line-soft pt-6 text-xs text-mute-strong">
           <Lock className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
@@ -155,7 +155,18 @@ function CheckoutFlow({ live, publicKey, account }: { live: boolean; publicKey?:
   );
 }
 
-export function Checkout({ live, publicKey, account }: { live: boolean; publicKey?: string; account?: CheckoutAccount }) {
+export function Checkout({
+  live,
+  publicKey,
+  crypto = false,
+  account,
+}: {
+  live: boolean;
+  publicKey?: string;
+  /** Paymento configurada: mostra a opção "cripto". */
+  crypto?: boolean;
+  account?: CheckoutAccount;
+}) {
   const hydrated = useHydrated(account);
   const lines = useCart((s) => s.lines);
 
@@ -176,7 +187,7 @@ export function Checkout({ live, publicKey, account }: { live: boolean; publicKe
 
   return (
     <QuoteProvider>
-      <CheckoutFlow live={live} publicKey={publicKey} account={account} />
+      <CheckoutFlow live={live} publicKey={publicKey} crypto={crypto} account={account} />
     </QuoteProvider>
   );
 }

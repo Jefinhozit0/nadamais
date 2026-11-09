@@ -27,6 +27,14 @@ const statusCopy: Record<OrderStatus, { title: string; text: string; tone: "ok" 
   entregue: { title: "Entregue.", text: "Bom uso. Qualquer coisa, a troca é por nossa conta na primeira vez.", tone: "ok" },
 };
 
+function paymentLabel(order: Order): string {
+  const { method, card } = order.payment;
+  if (method === "pix") return "pix";
+  if (method === "boleto") return "boleto";
+  if (method === "crypto") return "cripto · paymento";
+  return `cartão${card?.installments ? ` · ${card.installments}x` : ""}`;
+}
+
 function PaymentBlock({ order }: { order: Order }) {
   const { payment } = order;
   if (order.status !== "aguardando_pagamento") return null;
@@ -73,6 +81,27 @@ function PaymentBlock({ order }: { order: Order }) {
               abrir boleto
             </a>
           )}
+        </div>
+      </div>
+    );
+  }
+
+  if (payment.method === "crypto" && payment.checkoutUrl) {
+    return (
+      <div className="flex flex-col gap-3 rounded-card border border-line p-5">
+        <p className="text-sm">
+          O pagamento em cripto acontece na página da <strong className="font-medium">Paymento</strong>. Se você fechou a
+          página antes de pagar, dá para voltar por aqui enquanto o link valer (2 horas).
+        </p>
+        {payment.statusDetail && (
+          <p className="font-mono text-xs text-mute-strong" aria-live="polite">
+            {payment.statusDetail}
+          </p>
+        )}
+        <div>
+          <a href={payment.checkoutUrl} rel="noreferrer" className={buttonVariants()}>
+            continuar pagamento em cripto
+          </a>
         </div>
       </div>
     );
@@ -198,7 +227,7 @@ async function OrderView({ params }: { params: PageProps<"/pedido/[id]">["params
           <dd className="border-t border-line-soft pt-3 text-lg">{formatBRL(order.totals.total)}</dd>
         </dl>
         <p className="mt-3 font-mono text-micro text-mute-strong">
-          {order.payment.method === "pix" ? "pix" : order.payment.method === "boleto" ? "boleto" : `cartão${order.payment.card?.installments ? ` · ${order.payment.card.installments}x` : ""}`}
+          {paymentLabel(order)}
           {order.payment.provider === "demo" && " · demonstração"}
         </p>
       </aside>

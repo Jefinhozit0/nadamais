@@ -36,7 +36,7 @@ export const cartItemSchema = z.object({
 
 export const shippingMethodSchema = z.enum(["economica", "expressa"]);
 
-export const paymentMethodSchema = z.enum(["pix", "card", "boleto"]);
+export const paymentMethodSchema = z.enum(["pix", "card", "boleto", "crypto"]);
 
 export type Customer = z.infer<typeof customerSchema>;
 export type Address = z.infer<typeof addressSchema>;

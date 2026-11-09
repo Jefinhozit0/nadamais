@@ -172,10 +172,12 @@ enum PaymentMethod {
   pix
   card
   boleto
+  crypto
 }
 
 enum PaymentProvider {
   mercadopago
+  paymento
   demo
 }
 
@@ -216,6 +218,8 @@ model Order {
   boletoBarcode     String?
   cardLastFour      String?
   installments      Int?
+  /// Link do checkout externo (Paymento: página onde o cliente escolhe a cripto e paga).
+  paymentUrl        String?
 
   /// Estoque já devolvido (pedido recusado/cancelado) — evita devolver duas vezes.
   stockReleased Boolean @default(false)

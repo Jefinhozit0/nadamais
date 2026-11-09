@@ -101,7 +101,7 @@ async function OrderDetail({ params }: { params: PageProps<"/admin/pedidos/[id]"
           <section className="sm:col-span-2">
             <h2 className="text-sm font-medium">pagamento</h2>
             <p className="mt-2 font-mono text-xs text-ink-soft">
-              {order.payment.method === "card" ? "cartão" : order.payment.method} · {order.payment.provider}
+              {order.payment.method === "card" ? "cartão" : order.payment.method === "crypto" ? "cripto" : order.payment.method} · {order.payment.provider}
               {order.payment.card?.installments ? ` · ${order.payment.card.installments}x` : ""}
               {order.payment.providerPaymentId && ` · id ${order.payment.providerPaymentId}`}
               {order.payment.providerStatus && ` · ${order.payment.providerStatus}`}

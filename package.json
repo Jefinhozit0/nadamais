@@ -13,6 +13,7 @@
     "db:setup": "prisma migrate deploy && prisma db seed",
     "db:studio": "prisma studio",
     "admin:grant": "tsx scripts/grant-admin.ts",
+    "paymento:setup": "tsx scripts/paymento-setup.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

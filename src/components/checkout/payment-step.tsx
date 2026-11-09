@@ -1,6 +1,6 @@
 "use client";
 
-import { Barcode, CreditCard, QrCode, type LucideIcon } from "lucide-react";
+import { Barcode, Coins, CreditCard, QrCode, type LucideIcon } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -23,17 +23,23 @@ const methods: { value: PaymentMethod; label: string; detail: string; icon: Luci
   { value: "pix", label: "pix", detail: `${Math.round(siteConfig.pixDiscount * 100)}% off · aprovação na hora`, icon: QrCode },
   { value: "card", label: "cartão de crédito", detail: `até ${siteConfig.maxInstallments}x sem juros`, icon: CreditCard },
   { value: "boleto", label: "boleto", detail: "vence em 3 dias úteis · aprova em até 2 dias", icon: Barcode },
+  { value: "crypto", label: "cripto", detail: "bitcoin, usdt, ethereum e outras · via paymento", icon: Coins },
 ];
 
 type PaymentStepProps = {
   live: boolean;
   publicKey?: string;
+  /** Paymento configurada. */
+  crypto: boolean;
   totals: { total: number; subtotal: number; shipping: number };
 };
 
-export function PaymentStep({ live, publicKey, totals }: PaymentStepProps) {
+export function PaymentStep({ live, publicKey, crypto, totals }: PaymentStepProps) {
   const router = useRouter();
-  const method = useCheckout((s) => s.paymentMethod);
+  const storedMethod = useCheckout((s) => s.paymentMethod);
+  // rascunho salvo com "cripto" quando a opção não está mais disponível: volta para pix
+  const method = storedMethod === "crypto" && !crypto ? "pix" : storedMethod;
+  const available = crypto ? methods : methods.filter((m) => m.value !== "crypto");
   const setMethod = useCheckout((s) => s.setPaymentMethod);
   const customer = useCheckout((s) => s.customer);
   const address = useCheckout((s) => s.address);
@@ -59,7 +65,7 @@ export function PaymentStep({ live, publicKey, totals }: PaymentStepProps) {
           payment: { method, brick },
         }),
       });
-      const data = (await res.json()) as { orderId?: string; error?: string; rejected?: boolean };
+      const data = (await res.json()) as { orderId?: string; error?: string; rejected?: boolean; redirectUrl?: string };
       if (!res.ok || !data.orderId || data.rejected) {
         setError(data.error ?? "Não foi possível finalizar. Tente de novo.");
         setSubmitting(false);
@@ -67,6 +73,11 @@ export function PaymentStep({ live, publicKey, totals }: PaymentStepProps) {
       }
       clearCart();
       resetFlow();
+      if (data.redirectUrl) {
+        // cripto: o pagamento acontece na página da Paymento, que depois volta para /pedido/[id]
+        window.location.assign(data.redirectUrl);
+        return;
+      }
       router.push(`/pedido/${data.orderId}`);
     } catch {
       setError("Sem conexão. Nada foi cobrado — tente de novo.");
@@ -79,7 +90,7 @@ export function PaymentStep({ live, publicKey, totals }: PaymentStepProps) {
       <fieldset>
         <legend className="mb-3 text-sm">forma de pagamento</legend>
         <div className="grid gap-2">
-          {methods.map(({ value, label, detail, icon: Icon }) => (
+          {available.map(({ value, label, detail, icon: Icon }) => (
             <label
               key={value}
               className={cn(
@@ -119,7 +130,18 @@ export function PaymentStep({ live, publicKey, totals }: PaymentStepProps) {
         </p>
       )}
 
-      {live && publicKey ? (
+      {method === "crypto" ? (
+        <div className="flex flex-col gap-3">
+          <p className="rounded-card border border-line-soft px-4 py-3 text-xs leading-relaxed text-ink-soft">
+            Você vai para a página segura da <strong className="font-medium text-ink">Paymento</strong> para escolher a
+            moeda e a rede. O valor em cripto é calculado na hora a partir do total em reais. O pedido é confirmado
+            depois das confirmações na blockchain, e o link vale por 2 horas.
+          </p>
+          <Button size="lg" className="w-full" loading={submitting} onClick={() => placeOrder()}>
+            pagar com cripto · <span className="font-mono normal-case tabular-nums">{formatBRL(totals.total)}</span>
+          </Button>
+        </div>
+      ) : live && publicKey ? (
         <MercadoPagoBrick
           key={`${method}-${totals.total}`}
           publicKey={publicKey}

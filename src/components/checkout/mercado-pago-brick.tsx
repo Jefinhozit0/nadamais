@@ -24,7 +24,7 @@ function ensureMercadoPago(publicKey: string) {
 
 type Props = {
   publicKey: string;
-  method: PaymentMethod;
+  method: Exclude<PaymentMethod, "crypto">;
   /** Centavos. */
   amount: number;
   customer: CustomerDraft;

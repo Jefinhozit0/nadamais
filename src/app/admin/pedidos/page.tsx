@@ -106,7 +106,7 @@ async function Orders({ searchParams }: { searchParams: PageProps<"/admin/pedido
                   </td>
                   <td className="py-3 pr-4 font-mono text-xs">{o._count.items}</td>
                   <td className="py-3 pr-4 text-xs">
-                    {o.paymentMethod === "card" ? "cartão" : o.paymentMethod}
+                    {o.paymentMethod === "card" ? "cartão" : o.paymentMethod === "crypto" ? "cripto" : o.paymentMethod}
                     {o.paymentProvider === "demo" && <span className="text-mute-strong"> · demo</span>}
                   </td>
                   <td className="py-3 pr-4 text-right font-mono tabular-nums">{formatBRL(o.total)}</td>

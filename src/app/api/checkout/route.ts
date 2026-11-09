@@ -9,6 +9,7 @@ import {
   shippingMethodSchema,
 } from "@/lib/checkout-schema";
 import { isMercadoPagoConfigured, paymentClient } from "@/server/mercadopago";
+import { createPaymentRequest, isPaymentoConfigured } from "@/server/paymento";
 import { getSessionUser } from "@/server/auth";
 import { db } from "@/server/db";
 import { hasDatabase } from "@/server/catalog-source";
@@ -56,6 +57,9 @@ async function saveToProfile(profileId: string, customer: z.infer<typeof custome
   }
 }
 
+/** Validade do link de pagamento em cripto (e da reserva de estoque). */
+const CRYPTO_WINDOW_MS = 2 * 60 * 60 * 1000;
+
 function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 }
@@ -84,7 +88,11 @@ export async function POST(request: Request) {
   const shipping = pickShipping(shippingFor(address.cep, cart), shippingMethod);
   const totals = computeTotals(cart, shipping, payment.method);
 
-  const live = isMercadoPagoConfigured();
+  const crypto = payment.method === "crypto";
+  if (crypto && !isPaymentoConfigured()) {
+    return Response.json({ error: "Pagamento em cripto indisponível no momento. Escolha outra forma." }, { status: 400 });
+  }
+  const live = !crypto && isMercadoPagoConfigured();
   if (live && !payment.brick) {
     return Response.json({ error: "Pagamento incompleto. Tente de novo." }, { status: 400 });
   }
@@ -100,7 +108,7 @@ export async function POST(request: Request) {
     lines: cart.lines,
     shipping,
     totals,
-    payment: { method: payment.method, provider: live ? "mercadopago" : "demo" },
+    payment: { method: payment.method, provider: crypto ? "paymento" : live ? "mercadopago" : "demo" },
   });
   } catch (error) {
     if (error instanceof OutOfStockError) {
@@ -117,7 +125,32 @@ export async function POST(request: Request) {
     await saveToProfile(user.id, customer, address).catch((e) => console.error("[checkout] perfil", e));
   }
 
-  // 3a. Modo demonstração: nada é cobrado
+  // 3a. Cripto (Paymento): o cliente paga na página da Paymento; a confirmação chega pelo IPN
+  if (crypto) {
+    try {
+      const { token, url } = await createPaymentRequest({
+        orderId: order.id,
+        amount: totals.total,
+        email: customer.email,
+        returnUrl: `${siteUrl()}/pedido/${order.id}`,
+        // o estoque fica reservado enquanto o link vale
+        expiresAt: new Date(Date.now() + CRYPTO_WINDOW_MS),
+      });
+      await updateOrder(order.id, {
+        payment: { method: "crypto", provider: "paymento", providerPaymentId: token, providerStatus: "Initialize", checkoutUrl: url },
+      });
+      return Response.json({ orderId: order.id, redirectUrl: url });
+    } catch (error) {
+      console.error("[checkout] falha na Paymento", error);
+      await updateOrder(order.id, { status: "cancelado", payment: { statusDetail: "falha ao gerar o pagamento em cripto" } });
+      return Response.json(
+        { error: "Não conseguimos gerar o pagamento em cripto. Nada foi cobrado — tente de novo ou escolha outra forma." },
+        { status: 502 },
+      );
+    }
+  }
+
+  // 3b. Modo demonstração: nada é cobrado
   if (!live) {
     const demo: PaymentInfo =
       payment.method === "card"
@@ -134,7 +167,7 @@ export async function POST(request: Request) {
     return Response.json({ orderId: order.id, demo: true });
   }
 
-  // 3b. Mercado Pago (sandbox ou produção, conforme as credenciais)
+  // 3c. Mercado Pago (sandbox ou produção, conforme as credenciais)
   const brick = payment.brick!;
   const [firstName, ...rest] = customer.name.split(/\s+/);
   try {

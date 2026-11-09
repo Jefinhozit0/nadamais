@@ -7,6 +7,7 @@ import { getProfile } from "@/server/auth";
 import { hasDatabase } from "@/server/catalog-source";
 import { db } from "@/server/db";
 import { isMercadoPagoConfigured } from "@/server/mercadopago";
+import { isPaymentoConfigured } from "@/server/paymento";
 
 export const metadata: Metadata = {
   title: "Finalizar compra",
@@ -55,7 +56,12 @@ async function CheckoutWithAccount() {
           para usar seus dados e endereços salvos.
         </p>
       )}
-      <Checkout live={isMercadoPagoConfigured()} publicKey={process.env.NEXT_PUBLIC_MP_PUBLIC_KEY} account={account} />
+      <Checkout
+        live={isMercadoPagoConfigured()}
+        publicKey={process.env.NEXT_PUBLIC_MP_PUBLIC_KEY}
+        crypto={isPaymentoConfigured()}
+        account={account}
+      />
     </>
   );
 }

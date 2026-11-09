@@ -68,6 +68,18 @@ Fluxo: sacola lateral → `/checkout` (dados → entrega → pagamento) → `/pe
 
 Segurança: o navegador só envia produto, tamanho e quantidade. Preço, estoque, frete e desconto são recalculados no servidor (`src/server/pricing.ts`), a cobrança usa o id do pedido como chave de idempotência, e o webhook valida a assinatura e consulta o pagamento na API antes de mudar o status.
 
+### Cripto (Paymento)
+
+Quarta forma de pagamento, ao lado de Pix, cartão e boleto. Só aparece no checkout quando `PAYMENTO_API_KEY` e `PAYMENTO_SECRET_KEY` estão definidas.
+
+1. Crie a conta em [app.paymento.io](https://app.paymento.io), configure as carteiras/moedas aceitas e copie a **API Key** e a **Secret Key**.
+2. Coloque as duas no `.env.local` e nas variáveis da Vercel.
+3. Depois do deploy, registre o IPN: `pnpm paymento:setup https://SEU_DOMINIO` (aponta para `/api/webhooks/paymento`).
+
+Fluxo: o pedido é criado (estoque reservado) → a loja pede um token à Paymento com o total **em BRL** → o cliente paga na página da Paymento → a Paymento chama o IPN → a loja valida a assinatura HMAC, confirma com `/verify` e só então marca como pago. Expirou ou foi cancelado: o pedido é cancelado e o estoque volta. Um pedido pago nunca volta para não pago; se alguém pagar depois do cancelamento, o admin vê um aviso no pedido. O link de pagamento vale 2 horas.
+
+Testes: a Paymento não tem sandbox; use as redes de teste (Bitcoin testnet, Ethereum Sepolia, Tron Shasta) — veja "Testing and Simulation" na documentação deles.
+
 **Provisório:** o frete vem de uma tabela por região (`src/lib/shipping.ts`). Para produção, troque `quoteShipping` por Melhor Envio, Correios ou Frenet.
 
 ## Testes

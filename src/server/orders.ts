@@ -21,13 +21,15 @@ export type OrderStatus =
 
 export type PaymentInfo = {
   method: PaymentMethod;
-  provider: "mercadopago" | "demo";
+  provider: "mercadopago" | "paymento" | "demo";
   providerPaymentId?: string;
   providerStatus?: string;
   statusDetail?: string;
   pix?: { qrCode: string; qrCodeBase64?: string; expiresAt?: string };
   boleto?: { url: string; barcode?: string; expiresAt?: string };
   card?: { lastFour?: string; installments?: number; brand?: string };
+  /** Checkout externo (Paymento): página onde o cliente paga em cripto. */
+  checkoutUrl?: string;
 };
 
 export type OrderLine = Omit<PricedLine, "category">;
@@ -97,6 +99,7 @@ function toOrder(row: OrderRow): Order {
         : undefined,
       boleto: row.boletoUrl ? { url: row.boletoUrl, barcode: row.boletoBarcode ?? undefined } : undefined,
       card: row.cardLastFour || row.installments ? { lastFour: row.cardLastFour ?? undefined, installments: row.installments ?? undefined } : undefined,
+      checkoutUrl: row.paymentUrl ?? undefined,
     },
   };
 }
@@ -109,6 +112,7 @@ function paymentColumns(p: Partial<PaymentInfo>): Prisma.OrderUpdateInput {
     ...(p.pix && { pixQrCode: p.pix.qrCode, pixQrCodeBase64: p.pix.qrCodeBase64, pixExpiresAt: p.pix.expiresAt }),
     ...(p.boleto && { boletoUrl: p.boleto.url, boletoBarcode: p.boleto.barcode }),
     ...(p.card && { cardLastFour: p.card.lastFour, installments: p.card.installments }),
+    ...(p.checkoutUrl !== undefined && { paymentUrl: p.checkoutUrl }),
   };
 }
 

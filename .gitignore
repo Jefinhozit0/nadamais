@@ -48,3 +48,6 @@ next-env.d.ts
 # env: só o exemplo vai pro git
 !.env.example
 .impeccable/
+
+# pedidos em desenvolvimento (Fase 3)
+.data/

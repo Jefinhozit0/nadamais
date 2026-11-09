@@ -39,5 +39,5 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // Só rotas que dependem de sessão; páginas estáticas e assets ficam de fora (mais rápido)
-  matcher: ["/conta/:path*", "/checkout", "/entrar", "/cadastro", "/auth/:path*", "/api/conta/:path*", "/api/checkout"],
+  matcher: ["/conta/:path*", "/admin/:path*", "/api/admin/:path*", "/checkout", "/entrar", "/cadastro", "/auth/:path*", "/api/conta/:path*", "/api/checkout"],
 };

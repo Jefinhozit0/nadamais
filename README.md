@@ -83,6 +83,20 @@ prisma/               schema, migrações e seed
 src/store/            sacola e rascunho do checkout (Zustand)
 ```
 
+## Painel admin (`/admin`)
+
+1. Crie sua conta na loja (`/cadastro`) e entre uma vez.
+2. Promova a conta: `pnpm admin:grant voce@email.com` (para remover: `--revoke`).
+3. Acesse `/admin` (também aparece um atalho em `/conta`).
+
+O que dá para fazer:
+- **Visão geral:** pedidos de hoje, aguardando pagamento, a separar/enviar, receita do mês e tamanhos com estoque baixo.
+- **Produtos:** criar, editar, arquivar/reativar (nunca apaga, para não quebrar pedidos antigos), estoque por tamanho e até 8 fotos.
+- **Pedidos:** filtros por status, busca por nº/nome/e-mail e mudança de status com transições permitidas (aguardando → pago → em separação → enviado → entregue). "Enviado" exige código de rastreio, que aparece para o cliente; "cancelado" devolve o estoque.
+- **Fotos:** o upload converte para WebP (até 1600px), remove metadados (EXIF/GPS) e envia ao Supabase Storage (bucket público `produtos`, criado no primeiro upload). Exige `SUPABASE_SECRET_KEY` no servidor.
+
+Segurança: quem não é admin recebe 404 (o painel não se anuncia), e toda página, Server Action e rota de upload confere o papel de novo. Edições de produto atualizam a vitrine na hora.
+
 ## Design
 
 Tudo segue [docs/design-system.md](docs/design-system.md). A página `/design-system` mostra os tokens e componentes nos temas claro e escuro.

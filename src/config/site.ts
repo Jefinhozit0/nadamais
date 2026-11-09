@@ -3,8 +3,8 @@
  * troque `name` aqui e tudo (header, footer, metadata) acompanha.
  */
 export const siteConfig = {
-  name: "sem nome",
-  shortName: "sem nome",
+  name: "nada mais",
+  shortName: "nada mais",
   tagline: "Sneakers e streetwear originais. Sem excesso.",
   description:
     "Sneakers e streetwear de Nike, Jordan, Adidas, New Balance, Stüssy e Carhartt WIP. Produtos 100% originais, envio para todo o Brasil, Pix, cartão e boleto.",

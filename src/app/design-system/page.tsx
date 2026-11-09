@@ -10,7 +10,11 @@ import { SizePicker } from "@/components/product/size-picker";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { sampleProducts } from "@/data/mock-products";
+import { products } from "@/data/products";
+
+const sampleProducts = ["nike-dunk-low-retro-panda", "new-balance-x90-pink", "stussy-graphic-hoodie-black", "stussy-low-pro-cap-black"]
+  .map((slug) => products.find((p) => p.slug === slug))
+  .filter((p) => p !== undefined);
 
 export const metadata: Metadata = {
   title: "Design system",

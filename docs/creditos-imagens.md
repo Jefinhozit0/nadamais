@@ -41,4 +41,4 @@ Fotos usadas **apenas em desenvolvimento**, baixadas do [Unsplash](https://unspl
 | `public/images/products/stussy-low-pro-cap-black.jpg` | https://unsplash.com/photos/a-black-hat-sitting-on-top-of-a-window-sill-a6PIHHL7d4I |
 | `public/images/products/carhartt-wip-canvas-tote-natural.jpg` | https://unsplash.com/photos/smTDI-z1rlY |
 | `public/images/products/stussy-canvas-tote-black.jpg` | https://unsplash.com/photos/TK-rrTgYqzo |
-| `public/images/hero/hero-hoodie.webp` (estampas de terceiros removidas por clonagem/inpainting, fundo recortado com GrabCut) | https://unsplash.com/photos/M3kSpOY6A6g |
+| `public/images/hero/hero-puffer-front.webp` (convertida para P&B, logos de terceiros no boné e na camiseta removidos por inpainting, fundo recortado com GrabCut) | https://unsplash.com/photos/wJ_P3zjLYAY |

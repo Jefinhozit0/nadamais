@@ -52,7 +52,7 @@ export function Hero({ drop }: { drop: Product }) {
       {/* Recorte: sobrepõe o título (z-10), ancorado na base */}
       <HeroFigure
         image={heroImage}
-        className="relative z-10 mx-auto -mt-[4vw] aspect-[1051/1800] h-[min(100vw,500px)] max-w-none lg:absolute lg:bottom-0 lg:left-1/2 lg:mt-0 lg:h-[90%] lg:-translate-x-1/2"
+        className="relative z-10 mx-auto -mt-[4vw] aspect-[1101/1800] h-[min(100vw,500px)] max-w-none lg:absolute lg:bottom-0 lg:left-1/2 lg:mt-0 lg:h-[90%] lg:-translate-x-1/2"
       />
 
       {/* Canto inferior esquerdo: manifesto */}

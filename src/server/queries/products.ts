@@ -1,9 +1,9 @@
 import "server-only";
-import { products } from "@/data/products";
 import {
   applyFilters,
   computeFacets,
   inStock,
+  lineOrder,
   matchesQuery,
   normalize,
   PAGE_SIZE,
@@ -12,10 +12,12 @@ import {
   type Facets,
 } from "@/lib/catalog";
 import type { Line, Product } from "@/types/product";
+import { loadCatalog } from "../catalog-source";
 
 /**
- * Camada de acesso a dados. Hoje lê o mock em memória; na Fase 4 passa a
- * consultar o Prisma mantendo as mesmas assinaturas (por isso já são async).
+ * Consultas da vitrine. Todas partem do catálogo em cache (loadCatalog) e aplicam
+ * filtro/ordenação em memória — adequado até alguns milhares de produtos.
+ * Acima disso, mova filtros para SQL (where/orderBy no Prisma) mantendo estas assinaturas.
  */
 
 export type CatalogResult = {
@@ -26,6 +28,7 @@ export type CatalogResult = {
 };
 
 export async function listProducts(filters: CatalogFilters): Promise<CatalogResult> {
+  const products = await loadCatalog();
   const filtered = sortProducts(applyFilters(products, filters), filters.ordem);
   const end = filters.pagina * PAGE_SIZE;
   return {
@@ -37,16 +40,16 @@ export async function listProducts(filters: CatalogFilters): Promise<CatalogResu
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | undefined> {
-  return products.find((p) => p.slug === slug);
+  return (await loadCatalog()).find((p) => p.slug === slug);
 }
 
 export async function getAllProductSlugs(): Promise<string[]> {
-  return products.map((p) => p.slug);
+  return (await loadCatalog()).map((p) => p.slug);
 }
 
 /** Mesma categoria, priorizando a mesma linha; exclui o próprio produto. */
 export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {
-  return products
+  return (await loadCatalog())
     .filter((p) => p.id !== product.id && p.category === product.category)
     .sort(
       (a, b) =>
@@ -58,45 +61,54 @@ export async function getRelatedProducts(product: Product, limit = 4): Promise<P
 }
 
 export async function getNewDrops(limit = 8): Promise<Product[]> {
-  return sortProducts(products.filter(inStock), "novos").slice(0, limit);
+  return sortProducts((await loadCatalog()).filter(inStock), "novos").slice(0, limit);
 }
 
 export async function getTrending(limit = 8): Promise<Product[]> {
-  return [...products]
+  return (await loadCatalog())
     .filter(inStock)
     .sort((a, b) => b.popularity - a.popularity)
     .slice(0, limit);
 }
 
-export async function getFeaturedDrop(): Promise<Product> {
-  const [latest] = sortProducts(
-    // foto de produto (não o recorte da campanha, que já está no hero)
-    products.filter((p) => p.badge === "drop" && inStock(p) && p.images[0]?.kind === "photo"),
+/** Drop em destaque no hero: o mais recente com foto de produto (o recorte da campanha já está no hero). */
+export async function getFeaturedDrop(): Promise<Product | undefined> {
+  const products = await loadCatalog();
+  const withPhoto = products.filter((p) => inStock(p) && p.images[0]?.kind === "photo");
+  const [latestDrop] = sortProducts(
+    withPhoto.filter((p) => p.badge === "drop"),
     "novos",
   );
-  return latest ?? products[0]!;
+  return latestDrop ?? sortProducts(withPhoto, "novos")[0];
 }
 
 export async function getLineSummary(): Promise<{ line: Line; count: number; cover?: Product }[]> {
-  const order: Line[] = ["essencial", "court", "volume", "utility"];
-  return order.map((line) => {
+  const products = await loadCatalog();
+  return lineOrder.map((line) => {
     const items = products.filter((p) => p.line === line);
     return {
       line,
       count: items.length,
-      cover: [...items].filter((p) => p.images.length > 0).sort((a, b) => b.popularity - a.popularity)[0],
+      cover: items.filter((p) => p.images.length > 0).sort((a, b) => b.popularity - a.popularity)[0],
     };
   });
 }
 
+// Capas preferidas (fotos que aguentam texto por cima); se sumirem do catálogo, usa a mais popular com foto
+const preferredCovers: Record<Product["category"], string> = {
+  sneakers: "court-gum-areia",
+  roupas: "calca-cargo-ripstop",
+  acessorios: "bone-6-gomos-branco",
+};
+
 export async function getCategoryCovers(): Promise<Record<Product["category"], Product | undefined>> {
-  // Capas escolhidas a dedo: fotos que aguentam texto por cima (sem estampa competindo)
-  const bySlug = (slug: string) => products.find((p) => p.slug === slug);
-  return {
-    sneakers: bySlug("court-gum-areia"),
-    roupas: bySlug("calca-cargo-ripstop"),
-    acessorios: bySlug("bone-6-gomos-branco"),
-  };
+  const products = await loadCatalog();
+  const pick = (category: Product["category"]) =>
+    products.find((p) => p.slug === preferredCovers[category] && p.images[0]?.kind === "photo") ??
+    products
+      .filter((p) => p.category === category && p.images[0]?.kind === "photo")
+      .sort((a, b) => b.popularity - a.popularity)[0];
+  return { sneakers: pick("sneakers"), roupas: pick("roupas"), acessorios: pick("acessorios") };
 }
 
 export type SearchSuggestion =
@@ -106,8 +118,9 @@ export type SearchSuggestion =
 export async function searchSuggestions(q: string, limit = 6): Promise<SearchSuggestion[]> {
   const query = q.trim();
   if (query.length < 2) return [];
+  const products = await loadCatalog();
   const needle = normalize(query);
-  const lineHits = (["essencial", "court", "volume", "utility"] as const)
+  const lineHits = lineOrder
     .filter((line) => line.includes(needle))
     .map((line) => ({ kind: "line" as const, line, count: products.filter((p) => p.line === line).length }));
   const productHits = sortProducts(

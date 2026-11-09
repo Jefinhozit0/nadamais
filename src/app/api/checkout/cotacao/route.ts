@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "CEP ou itens inválidos." }, { status: 400 });
   }
   const { cep, items } = parsed.data;
-  const [address, cart] = await Promise.all([lookupCep(cep), Promise.resolve(priceCart(items))]);
+  const [address, cart] = await Promise.all([lookupCep(cep), priceCart(items)]);
 
   if (address && "notFound" in address) {
     return Response.json({ error: "CEP não encontrado. Confira os números." }, { status: 404 });

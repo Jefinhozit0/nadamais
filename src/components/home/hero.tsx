@@ -13,10 +13,10 @@ import { HeroFigure } from "./hero-figure";
  * nome gigante dividido nas laterais, recorte do modelo ENTRE as palavras (sobrepondo),
  * manifesto no canto inferior esquerdo, card do drop no canto inferior direito.
  */
-export function Hero({ drop }: { drop: Product }) {
+export function Hero({ drop }: { drop?: Product }) {
   const words = siteConfig.name.split(" ");
   const [left, right] = words.length > 1 ? [words[0], words.slice(1).join(" ")] : [siteConfig.name, ""];
-  const dropImage = drop.images[0];
+  const dropImage = drop?.images[0];
 
   return (
     <section
@@ -27,9 +27,7 @@ export function Hero({ drop }: { drop: Product }) {
       <div aria-hidden="true" className="bg-halo absolute inset-x-0 top-[10%] bottom-0 -z-10" />
 
       <div className="flex items-start justify-between font-mono text-micro text-mute-strong">
-        <p>
-          drop {drop.releasedAt.slice(5, 7)}.{drop.releaseYear}
-        </p>
+        <p>{drop ? `drop ${drop.releasedAt.slice(5, 7)}.${drop.releaseYear}` : "nova coleção"}</p>
         <p className="hidden sm:block">sneakers · roupas · acessórios</p>
       </div>
 
@@ -78,6 +76,7 @@ export function Hero({ drop }: { drop: Product }) {
       </div>
 
       {/* Canto inferior direito: card do drop */}
+      {drop && (
       <div className="relative z-20 pb-8 lg:absolute lg:right-8 lg:bottom-10 lg:pb-0">
         <Link
           href={`/produto/${drop.slug}`}
@@ -106,6 +105,7 @@ export function Hero({ drop }: { drop: Product }) {
           </span>
         </Link>
       </div>
+      )}
 
       <Asterisks className="absolute top-[18%] right-8 hidden size-8 lg:block" />
     </section>

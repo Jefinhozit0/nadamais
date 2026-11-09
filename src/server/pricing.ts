@@ -1,12 +1,13 @@
 import "server-only";
 import { siteConfig } from "@/config/site";
-import { products } from "@/data/products";
 import type { CartItemInput, PaymentMethod, ShippingMethod } from "@/lib/checkout-schema";
 import { quoteShipping, type ShippingOption } from "@/lib/shipping";
+import type { Category } from "@/types/product";
+import { loadProductsFresh } from "./catalog-source";
 
 /**
  * Preço autoritativo do pedido. O navegador manda só {produto, tamanho, quantidade};
- * preço, estoque, frete e desconto são sempre recalculados aqui.
+ * preço, estoque, frete e desconto são sempre recalculados aqui, com dados frescos do banco.
  */
 
 export type PricedLine = {
@@ -14,6 +15,7 @@ export type PricedLine = {
   slug: string;
   name: string;
   line: string;
+  category: Category;
   size: string;
   quantity: number;
   unitPrice: number;
@@ -29,7 +31,8 @@ export type PricedCart = {
   subtotal: number;
 };
 
-export function priceCart(items: readonly CartItemInput[]): PricedCart {
+export async function priceCart(items: readonly CartItemInput[]): Promise<PricedCart> {
+  const products = await loadProductsFresh([...new Set(items.map((i) => i.productId))]);
   const lines: PricedLine[] = [];
   const issues: LineIssue[] = [];
 
@@ -49,6 +52,7 @@ export function priceCart(items: readonly CartItemInput[]): PricedCart {
       slug: product.slug,
       name: product.name,
       line: product.line,
+      category: product.category,
       size: item.size,
       quantity,
       unitPrice: product.price,
@@ -61,11 +65,11 @@ export function priceCart(items: readonly CartItemInput[]): PricedCart {
 }
 
 export function shippingFor(cep: string, cart: PricedCart): ShippingOption[] {
-  const items = cart.lines.map((l) => ({
-    category: products.find((p) => p.id === l.productId)!.category,
-    quantity: l.quantity,
-  }));
-  return quoteShipping(cep, items, cart.subtotal);
+  return quoteShipping(
+    cep,
+    cart.lines.map((l) => ({ category: l.category, quantity: l.quantity })),
+    cart.subtotal,
+  );
 }
 
 export type OrderTotals = {
@@ -76,11 +80,7 @@ export type OrderTotals = {
 };
 
 /** Desconto Pix incide só sobre os produtos, não sobre o frete. */
-export function computeTotals(
-  cart: PricedCart,
-  shipping: ShippingOption,
-  payment: PaymentMethod,
-): OrderTotals {
+export function computeTotals(cart: PricedCart, shipping: ShippingOption, payment: PaymentMethod): OrderTotals {
   const discount = payment === "pix" ? Math.round(cart.subtotal * siteConfig.pixDiscount) : 0;
   return {
     subtotal: cart.subtotal,

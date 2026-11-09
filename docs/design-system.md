@@ -22,9 +22,31 @@ Palavras-chave: **off-white · moldura · tipografia larga · grão · recorte d
 | `line`           | `#121212` | Bordas finas (1px) da moldura, cards e pills                    |
 | `line-soft`      | `#D6D2CF` | Divisórias secundárias, inputs em repouso                       |
 | `drop` (acento)  | `#B23A48` | Único acento: selo "drop", badge "últimas unidades", foco ativo |
-| `drop-soft`      | `#E7C3C6` | Fundo de badges com acento                                      |
+| `drop-soft`      | `#F7EAEB` | Fundo de badges com acento (texto `drop` sobre ele = 5:1)       |
 | `success`        | `#2F6B4F` | Estoque ok, pagamento aprovado                                  |
 | `danger`         | `#B23A48` | Erros (mesmo tom do acento — coerência)                         |
+
+### Tema escuro
+
+Mesma estrutura e mesmos nomes de token, valores invertidos. A ideia é "a mesma loja à noite", sem neon, sem azul e sem preto absoluto. O grão fica um pouco mais fraco.
+
+| Token         | Claro     | Escuro    |
+|---------------|-----------|-----------|
+| `paper`       | `#F3F0EE` | `#0B0B0B` |
+| `canvas`      | `#FAF8F7` | `#141413` |
+| `haze`        | `#E4E0DE` | `#262524` |
+| `ink`         | `#121212` | `#F1EEEC` |
+| `ink-soft`    | `#3A3A3A` | `#C9C5C2` |
+| `mute`        | `#A9A6A4` | `#7C7976` |
+| `mute-strong` | `#6E6B69` | `#A19D9A` |
+| `line-soft`   | `#D6D2CF` | `#2F2D2C` |
+| `drop`        | `#B23A48` | `#DA5F6B` |
+| `drop-soft`   | `#F7EAEB` | `#2A1518` |
+| `success`     | `#2F6B4F` | `#6FBF96` |
+
+- Ativação: classe `.dark` no `<html>`. **Exceção aprovada à regra §9:** na primeira visita vale a preferência do sistema operacional; depois, a escolha do usuário (salva em `localStorage`). Um script inline aplica o tema antes do primeiro paint, então não há flash.
+- O `drop` escuro é mais claro para manter contraste AA (≥ 4.5:1) sobre `canvas`.
+- Fotos de produto com fundo removido funcionam nos dois temas. Fotos com fundo branco "chapado" devem receber `mix-blend-multiply` no claro e ficar dentro de um card `haze` no escuro.
 
 Regras:
 - O acento vermelho-carmim vem da estampa da jaqueta da referência. Usar com **parcimônia** (≤ 5% da tela).
@@ -42,16 +64,16 @@ A referência usa uma grotesca **geométrica e larga (extended)**, com títulos 
 | Dados / técnicos   | **JetBrains Mono**         | 400     | SKU, preço em listas, "account id · 003.201", tamanhos |
 
 Escala (mobile → desktop):
-- `display-xl` clamp(3.5rem, 11vw, 10rem) / 0.9
+- `display-xl` clamp(3.25rem, 11vw, 10rem) / 0.9, tracking -0.03em
 - `display-lg` clamp(2.5rem, 6vw, 5rem) / 0.95
 - `h1` clamp(1.75rem, 3vw, 2.5rem) / 1.1 — ex.: "Clothes without excess. Only style."
 - `h2` 1.5rem / 1.2
 - `body` 0.9375rem / 1.5
 - `small` 0.75rem / 1.4 — parágrafo descritivo da referência
-- `micro` 0.6875rem / 1.3, uppercase opcional, tracking +0.04em
+- `micro` 0.75rem / 1.3 (12px: mínimo para metadados), tracking +0.04em
 
 Regras:
-- Navegação, botões e labels em **minúsculas** (assinatura da referência).
+- Navegação, botões e labels em **minúsculas** (assinatura da referência). Itens inativos da nav usam `mute-strong` (o `mute` da referência falha AA em texto pequeno).
 - Títulos de produto em minúsculas ou sentence case, nunca CAIXA ALTA total.
 - Parágrafos curtos, no máximo ~45 caracteres por linha em blocos descritivos.
 
@@ -91,7 +113,9 @@ Regras:
 - **Botão sólido:** fundo `ink`, texto `canvas`. Uso: "adicionar à sacola", "finalizar".
 - **Card de produto:** borda 1px `ink`, raio 16px, imagem recortada sobre `canvas`, ano/drop em mono embaixo (como "2025" na referência), nome + preço em linha.
 - **Nav:** item ativo em `ink` peso 500, inativos em `mute`; tudo minúsculo e espaçado.
-- **Chip de tamanho:** pill; disponível = borda `ink`; esgotado = `line-soft` + texto riscado; selecionado = sólido `ink`.
+- **Chip de tamanho:** pill de 44px, radio nativo; disponível = borda `ink`; esgotado = `line-soft` + texto riscado; selecionado = sólido `ink`; últimas unidades = ponto `drop` no canto.
+- **Campo:** 44px, raio 8px, borda `line-soft`; foco = contorno 2px `ink`; erro = borda `drop` + mensagem dizendo o problema e a solução.
+- **Área de toque:** mínimo 44px em tudo que é clicável (pseudo-elemento quando o visual é menor).
 
 ## 8. Movimento (Framer Motion)
 
@@ -102,7 +126,7 @@ Regras:
 
 ## 9. Não fazer
 
-- Fundo preto/dark como padrão (a referência é clara).
+- Forçar o tema escuro como padrão. O claro é a identidade; o escuro só aparece por preferência do sistema ou escolha do usuário.
 - Gradientes coloridos, glassmorphism, sombras pesadas, neon.
 - Mais de um acento de cor.
 - CAIXA ALTA em blocos longos; fontes condensadas (a referência é *extended*).

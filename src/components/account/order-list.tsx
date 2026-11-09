@@ -7,12 +7,13 @@ import { OrderStatusBadge } from "./order-status-badge";
 
 const dateFmt = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Sao_Paulo" });
 
-export function OrderList({ orders }: { orders: Order[] }) {
+/** `hrefFor` permite reutilizar a lista no admin (link para o detalhe interno). */
+export function OrderList({ orders, hrefFor = (o) => `/pedido/${o.id}` }: { orders: Order[]; hrefFor?: (o: Order) => string }) {
   return (
     <ul className="flex flex-col">
       {orders.map((order) => (
         <li key={order.id} className="border-t border-line-soft last:border-b">
-          <Link href={`/pedido/${order.id}`} className="group/order flex flex-wrap items-center gap-x-6 gap-y-3 py-4">
+          <Link href={hrefFor(order)} className="group/order flex flex-wrap items-center gap-x-6 gap-y-3 py-4">
             <span className="flex -space-x-3">
               {order.lines.slice(0, 3).map((line) => (
                 <span

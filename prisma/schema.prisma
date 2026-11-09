@@ -1,0 +1,246 @@
+// Banco: Postgres do Supabase. Usuários e senhas ficam no Supabase Auth (schema `auth`);
+// aqui guardamos o perfil (mesmo id do usuário do Auth) e os dados da loja.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ——— Catálogo ———
+
+enum Category {
+  sneakers
+  roupas
+  acessorios
+}
+
+enum Line {
+  essencial
+  court
+  volume
+  utility
+}
+
+enum SizeSystem {
+  sneaker
+  apparel
+  one_size
+}
+
+enum ProductBadge {
+  novo
+  drop
+  ultimas
+  esgotado
+}
+
+enum ImageKind {
+  photo
+  cutout
+}
+
+model Product {
+  id             String        @id @default(cuid())
+  slug           String        @unique
+  name           String
+  shortName      String
+  line           Line
+  category       Category
+  type           String
+  colorway       String
+  colors         String[]
+  sku            String        @unique
+  description    String
+  details        String[]
+  /// Centavos.
+  price          Int
+  /// Centavos (preço "de").
+  compareAtPrice Int?
+  sizeSystem     SizeSystem
+  releasedAt     DateTime      @db.Date
+  popularity     Int           @default(0)
+  badge          ProductBadge?
+  active         Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  images     ProductImage[]
+  sizes      ProductSize[]
+  wishlists  WishlistItem[]
+  orderItems OrderItem[]
+
+  @@index([active, category])
+  @@index([active, line])
+}
+
+model ProductImage {
+  id        String    @id @default(cuid())
+  productId String
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  src       String
+  alt       String
+  width     Int
+  height    Int
+  kind      ImageKind @default(photo)
+  credit    String?
+  position  Int       @default(0)
+
+  @@index([productId, position])
+}
+
+model ProductSize {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  /// Numeração BR para tênis; P–GG para roupas; "U" para tamanho único.
+  label     String
+  stock     Int     @default(0)
+  position  Int     @default(0)
+
+  @@unique([productId, label])
+}
+
+// ——— Clientes ———
+
+enum Role {
+  customer
+  admin
+}
+
+/// Perfil da loja. `id` = id do usuário no Supabase Auth (auth.users.id).
+model Profile {
+  id        String   @id @db.Uuid
+  email     String   @unique
+  name      String?
+  cpf       String?
+  phone     String?
+  role      Role     @default(customer)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  addresses Address[]
+  wishlist  WishlistItem[]
+  orders    Order[]
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  profileId  String   @db.Uuid
+  profile    Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  label      String   @default("casa")
+  recipient  String
+  cep        String
+  street     String
+  number     String
+  complement String   @default("")
+  district   String
+  city       String
+  state      String
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([profileId])
+}
+
+model WishlistItem {
+  profileId String   @db.Uuid
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([profileId, productId])
+}
+
+// ——— Pedidos ———
+
+enum OrderStatus {
+  aguardando_pagamento
+  pago
+  recusado
+  cancelado
+  em_separacao
+  enviado
+  entregue
+}
+
+enum PaymentMethod {
+  pix
+  card
+  boleto
+}
+
+enum PaymentProvider {
+  mercadopago
+  demo
+}
+
+model Order {
+  id        String      @id
+  /// Número curto exibido ao cliente.
+  number    Int         @unique @default(autoincrement())
+  status    OrderStatus @default(aguardando_pagamento)
+  profileId String?     @db.Uuid
+  profile   Profile?    @relation(fields: [profileId], references: [id], onDelete: SetNull)
+
+  // Snapshot do cliente e endereço no momento da compra
+  customerName  String
+  customerEmail String
+  customerCpf   String
+  customerPhone String
+  address       Json
+
+  shippingMethod String
+  shippingLabel  String
+  shippingDays   Int
+
+  /// Valores em centavos.
+  subtotal     Int
+  shippingCost Int
+  discount     Int
+  total        Int
+
+  paymentMethod     PaymentMethod
+  paymentProvider   PaymentProvider
+  providerPaymentId String?
+  providerStatus    String?
+  statusDetail      String?
+  pixQrCode         String?
+  pixQrCodeBase64   String?
+  pixExpiresAt      String?
+  boletoUrl         String?
+  boletoBarcode     String?
+  cardLastFour      String?
+  installments      Int?
+
+  /// Estoque já devolvido (pedido recusado/cancelado) — evita devolver duas vezes.
+  stockReleased Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items OrderItem[]
+
+  @@index([profileId, createdAt])
+  @@index([customerEmail])
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  slug      String
+  name      String
+  line      String
+  size      String
+  quantity  Int
+  unitPrice Int
+  total     Int
+  image     String?
+}

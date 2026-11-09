@@ -51,3 +51,11 @@ next-env.d.ts
 
 # pedidos em desenvolvimento (Fase 3)
 .data/
+
+/src/generated/prisma
+
+# skills de agente instaladas pelo `prisma init` (locais, não versionar)
+.agents/
+.windsurf/
+.claude/skills/
+skills-lock.json

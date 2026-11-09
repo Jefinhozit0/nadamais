@@ -10,6 +10,10 @@ export function formatBRL(cents: number): string {
   return brl.format(cents / 100);
 }
 
+export function pixPrice(cents: number): number {
+  return Math.round(cents * (1 - siteConfig.pixDiscount));
+}
+
 export function formatInstallments(
   cents: number,
   max: number = siteConfig.maxInstallments,

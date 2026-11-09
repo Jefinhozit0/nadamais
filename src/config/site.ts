@@ -11,6 +11,10 @@ export const siteConfig = {
   locale: "pt-BR",
   currency: "BRL",
   maxInstallments: 10,
+  /** Desconto no Pix (5%) — prática comum no varejo BR; ajuste aqui. */
+  pixDiscount: 0.05,
+  /** Frete grátis a partir de (centavos). */
+  freeShippingFrom: 49900,
   city: "são paulo, br",
 } as const;
 

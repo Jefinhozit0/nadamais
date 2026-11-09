@@ -4,7 +4,6 @@ import { Menu } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Asterisks } from "@/components/brand/asterisks";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { siteConfig } from "@/config/site";
@@ -35,11 +34,10 @@ export function MobileMenu() {
           />
         </nav>
 
-        <div className="mt-auto flex items-center justify-between border-t border-line-soft pt-5 text-sm">
-          <Link href="/conta" onClick={() => setOpen(false)} className="text-mute-strong hover:text-ink">
+        <div className="mt-auto border-t border-line-soft pt-5 text-sm">
+          <Link href="/conta" onClick={() => setOpen(false)} className="inline-block py-2 text-mute-strong hover:text-ink">
             minha conta
           </Link>
-          <ThemeToggle />
         </div>
       </SheetContent>
     </Sheet>

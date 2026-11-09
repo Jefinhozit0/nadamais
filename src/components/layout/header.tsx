@@ -22,7 +22,7 @@ export function Header() {
 
         <div className="flex items-center justify-self-end gap-2">
           <SearchDialog />
-          <ThemeToggle className="hidden lg:inline-flex" />
+          <ThemeToggle />
           <Link
             href="/conta"
             className="hidden rounded-sm px-2 py-3 font-mono text-xs text-mute-strong transition-colors hover:text-ink md:inline"

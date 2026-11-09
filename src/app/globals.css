@@ -235,6 +235,60 @@
   animation-delay: var(--rise-delay, 0ms);
 }
 
+/* Texto corrido das páginas institucionais */
+@utility prose-content {
+  max-width: 65ch;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  & > * + * {
+    margin-top: 1rem;
+  }
+  & h2 {
+    margin-top: 3rem;
+    scroll-margin-top: 7rem;
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  & h2:first-child {
+    margin-top: 0;
+  }
+  & h3 {
+    margin-top: 1.75rem;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  & ul {
+    list-style: none;
+    padding: 0;
+  }
+  & ul > li {
+    position: relative;
+    padding-left: 1.25rem;
+  }
+  & ul > li + li {
+    margin-top: 0.5rem;
+  }
+  & ul > li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--mute-strong);
+  }
+  & a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  & strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+}
+
 /* Moldura: o elemento mais reconhecível da referência */
 @utility frame {
   border: 1px solid var(--line);

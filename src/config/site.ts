@@ -16,6 +16,20 @@ export const siteConfig = {
   /** Frete grátis a partir de (centavos). */
   freeShippingFrom: 49900,
   city: "são paulo, br",
+  /** Prazo próprio de troca (dias). O direito de arrependimento legal é de 7 dias (CDC, art. 49). */
+  exchangeDays: 30,
+  /**
+   * Dados legais e de contato — PREENCHER antes de lançar (aparecem no rodapé, privacidade e trocas).
+   * Os valores abaixo são provisórios.
+   */
+  legal: {
+    companyName: "Nome da Empresa LTDA",
+    cnpj: "00.000.000/0001-00",
+    address: "Rua Exemplo, 123 — São Paulo/SP — CEP 00000-000",
+    email: "contato@sualoja.com.br",
+    privacyEmail: "privacidade@sualoja.com.br",
+    whatsapp: "",
+  },
 } as const;
 
 export type NavItem = {

@@ -49,7 +49,7 @@ export function Footer() {
 
       <div className="mt-8 flex flex-col gap-3 border-t border-line-soft pt-5 font-mono text-micro text-mute-strong md:flex-row md:items-center md:justify-between">
         <p>
-          © {year} {siteConfig.name} · cnpj 00.000.000/0001-00 · {siteConfig.city}
+          © {year} {siteConfig.legal.companyName} · cnpj {siteConfig.legal.cnpj} · {siteConfig.city}
         </p>
         <p>pix · cartão em até {siteConfig.maxInstallments}x · boleto</p>
         <Link href="/sobre#qualidade" className="inline-flex items-center gap-1 rounded-sm text-ink hover:underline underline-offset-4">

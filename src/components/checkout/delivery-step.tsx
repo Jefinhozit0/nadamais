@@ -9,11 +9,13 @@ import { UFS } from "@/lib/br";
 import { addressSchema, fieldErrors } from "@/lib/checkout-schema";
 import { formatBRL } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { useCheckout } from "@/store/checkout";
+import { toAddressDraft, useCheckout, type AddressDraft } from "@/store/checkout";
 import { useQuote } from "./quote-context";
 import { TextField } from "./text-field";
 
-export function DeliveryStep() {
+type SavedAddress = AddressDraft & { id: string; label: string; isDefault: boolean };
+
+export function DeliveryStep({ savedAddresses = [] }: { savedAddresses?: SavedAddress[] }) {
   const address = useCheckout((s) => s.address);
   const setAddress = useCheckout((s) => s.setAddress);
   const shippingMethod = useCheckout((s) => s.shippingMethod);
@@ -61,6 +63,36 @@ export function DeliveryStep() {
 
   return (
     <form noValidate onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-6">
+      {savedAddresses.length > 0 && (
+        <fieldset className="sm:col-span-6">
+          <legend className="mb-3 text-sm">endereços salvos</legend>
+          <div className="flex flex-wrap gap-2">
+            {savedAddresses.map((saved) => {
+              const selected = saved.cep === address.cep.replace(/\D/g, "") && saved.number === address.number;
+              return (
+                <button
+                  key={saved.id}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => {
+                    const fields = toAddressDraft(saved);
+                    setAddress({ ...fields, cep: maskCep(fields.cep) });
+                  }}
+                  className={cn(
+                    "flex cursor-pointer flex-col items-start rounded-card border px-4 py-3 text-left text-xs transition-colors",
+                    selected ? "border-ink" : "border-line-soft hover:border-ink-soft",
+                  )}
+                >
+                  <span className="font-mono">{saved.label}</span>
+                  <span className="text-ink-soft">
+                    {saved.street}, {saved.number} — {saved.city}/{saved.state}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+      )}
       <TextField
         label="cep"
         name="cep"

@@ -9,7 +9,10 @@ import {
   shippingMethodSchema,
 } from "@/lib/checkout-schema";
 import { isMercadoPagoConfigured, paymentClient } from "@/server/mercadopago";
-import { createOrder, statusFromProvider, updateOrder, type PaymentInfo } from "@/server/orders";
+import { getSessionUser } from "@/server/auth";
+import { db } from "@/server/db";
+import { hasDatabase } from "@/server/catalog-source";
+import { createOrder, OutOfStockError, statusFromProvider, updateOrder, type PaymentInfo } from "@/server/orders";
 import { computeTotals, pickShipping, priceCart, shippingFor } from "@/server/pricing";
 
 /** Dados vindos do Payment Brick (só quando o Mercado Pago está configurado). */
@@ -30,11 +33,40 @@ const bodySchema = z.object({
   payment: z.object({ method: paymentMethodSchema, brick: brickSchema }),
 });
 
+async function saveToProfile(profileId: string, customer: z.infer<typeof customerSchema>, address: z.infer<typeof addressSchema>) {
+  const exists = await db.address.findFirst({ where: { profileId, cep: address.cep, number: address.number } });
+  if (!exists) {
+    const count = await db.address.count({ where: { profileId } });
+    if (count < 10) {
+      await db.address.create({
+        data: { ...address, profileId, recipient: customer.name, label: count === 0 ? "casa" : `endereço ${count + 1}`, isDefault: count === 0 },
+      });
+    }
+  }
+  const profile = await db.profile.findUnique({ where: { id: profileId } });
+  if (profile) {
+    await db.profile.update({
+      where: { id: profileId },
+      data: {
+        name: profile.name ?? customer.name,
+        cpf: profile.cpf ?? customer.cpf,
+        phone: profile.phone ?? customer.phone,
+      },
+    });
+  }
+}
+
 function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 }
 
 export async function POST(request: Request) {
+  if (!hasDatabase()) {
+    return Response.json(
+      { error: "Banco de dados não configurado: pedidos estão desativados. Veja o README (Banco de dados)." },
+      { status: 503 },
+    );
+  }
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return Response.json({ error: "Confira os dados do pedido.", fields: fieldErrors(parsed.error) }, { status: 400 });
@@ -42,7 +74,7 @@ export async function POST(request: Request) {
   const { items, customer, address, shippingMethod, payment } = parsed.data;
 
   // 1. Preços, estoque e frete recalculados no servidor
-  const cart = priceCart(items);
+  const cart = await priceCart(items);
   if (cart.issues.length > 0 || cart.lines.length === 0) {
     return Response.json(
       { error: "Algum item mudou de estoque. Revise a sacola.", issues: cart.issues, cart },
@@ -57,8 +89,12 @@ export async function POST(request: Request) {
     return Response.json({ error: "Pagamento incompleto. Tente de novo." }, { status: 400 });
   }
 
-  // 2. Pedido criado antes da cobrança (referência externa do pagamento)
-  const order = await createOrder({
+  // 2. Pedido criado antes da cobrança (referência externa do pagamento), já reservando o estoque
+  const user = await getSessionUser();
+  let order;
+  try {
+    order = await createOrder({
+    profileId: user?.id,
     customer,
     address,
     lines: cart.lines,
@@ -66,6 +102,20 @@ export async function POST(request: Request) {
     totals,
     payment: { method: payment.method, provider: live ? "mercadopago" : "demo" },
   });
+  } catch (error) {
+    if (error instanceof OutOfStockError) {
+      return Response.json(
+        { error: "Alguém levou a última unidade antes de você. Revise a sacola.", issues: [{ productId: error.productId, size: error.size, reason: "indisponivel", available: 0 }] },
+        { status: 409 },
+      );
+    }
+    throw error;
+  }
+
+  // Cliente logado: guarda o endereço na conta (se ainda não existir) e completa CPF/telefone do perfil
+  if (user) {
+    await saveToProfile(user.id, customer, address).catch((e) => console.error("[checkout] perfil", e));
+  }
 
   // 3a. Modo demonstração: nada é cobrado
   if (!live) {

@@ -17,6 +17,19 @@ export type AddressDraft = {
   state: string;
 };
 
+/** Copia só os campos de endereço (descarta id, apelido etc. de um endereço salvo). */
+export function toAddressDraft(a: AddressDraft): AddressDraft {
+  return {
+    cep: a.cep,
+    street: a.street,
+    number: a.number,
+    complement: a.complement,
+    district: a.district,
+    city: a.city,
+    state: a.state,
+  };
+}
+
 export type CheckoutStep = 1 | 2 | 3;
 
 type CheckoutState = {

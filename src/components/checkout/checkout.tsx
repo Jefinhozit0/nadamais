@@ -7,18 +7,39 @@ import { buttonVariants } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { cartSubtotal, useCart } from "@/store/cart";
-import { useCheckout, type CheckoutStep } from "@/store/checkout";
+import { toAddressDraft, useCheckout, type AddressDraft, type CheckoutStep } from "@/store/checkout";
 import { CustomerStep } from "./customer-step";
 import { DeliveryStep } from "./delivery-step";
 import { OrderSummary } from "./order-summary";
 import { PaymentStep } from "./payment-step";
 import { QuoteProvider, useQuote } from "./quote-context";
 
-function useHydrated(): boolean {
+export type CheckoutAccount = {
+  email: string;
+  name: string;
+  cpf: string;
+  phone: string;
+  addresses: (AddressDraft & { id: string; label: string; isDefault: boolean })[];
+};
+
+function useHydrated(account?: CheckoutAccount): boolean {
   const [ready, setReady] = useState(false);
   useEffect(() => {
-    void Promise.all([useCart.persist.rehydrate(), useCheckout.persist.rehydrate()]).then(() => setReady(true));
-  }, []);
+    void Promise.all([useCart.persist.rehydrate(), useCheckout.persist.rehydrate()]).then(() => {
+      // cliente logado: preenche o que ainda estiver vazio no rascunho
+      if (account) {
+        const { customer, address, setCustomer, setAddress } = useCheckout.getState();
+        if (!customer.email) {
+          setCustomer({ email: account.email, name: account.name, cpf: account.cpf, phone: account.phone });
+        }
+        const preferred = account.addresses.find((a) => a.isDefault) ?? account.addresses[0];
+        if (!address.cep && preferred) {
+          setAddress(toAddressDraft(preferred));
+        }
+      }
+      setReady(true);
+    });
+  }, [account]);
   return ready;
 }
 
@@ -70,7 +91,7 @@ function Step({
   );
 }
 
-function CheckoutFlow({ live, publicKey }: { live: boolean; publicKey?: string }) {
+function CheckoutFlow({ live, publicKey, account }: { live: boolean; publicKey?: string; account?: CheckoutAccount }) {
   const lines = useCart((s) => s.lines);
   const customer = useCheckout((s) => s.customer);
   const address = useCheckout((s) => s.address);
@@ -120,7 +141,7 @@ function CheckoutFlow({ live, publicKey }: { live: boolean; publicKey?: string }
             </>
           }
         >
-          <DeliveryStep />
+          <DeliveryStep savedAddresses={account?.addresses ?? []} />
         </Step>
         <Step n={3} title="pagamento">
           <PaymentStep live={live} publicKey={publicKey} totals={{ total: totals.total, subtotal, shipping: shipping?.price ?? 0 }} />
@@ -134,8 +155,8 @@ function CheckoutFlow({ live, publicKey }: { live: boolean; publicKey?: string }
   );
 }
 
-export function Checkout({ live, publicKey }: { live: boolean; publicKey?: string }) {
-  const hydrated = useHydrated();
+export function Checkout({ live, publicKey, account }: { live: boolean; publicKey?: string; account?: CheckoutAccount }) {
+  const hydrated = useHydrated(account);
   const lines = useCart((s) => s.lines);
 
   if (!hydrated) {
@@ -155,7 +176,7 @@ export function Checkout({ live, publicKey }: { live: boolean; publicKey?: strin
 
   return (
     <QuoteProvider>
-      <CheckoutFlow live={live} publicKey={publicKey} />
+      <CheckoutFlow live={live} publicKey={publicKey} account={account} />
     </QuoteProvider>
   );
 }

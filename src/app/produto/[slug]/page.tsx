@@ -2,6 +2,7 @@ import { BadgeCheck, RotateCcw, Truck } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { ProductBadge } from "@/components/product/product-badge";
 import { ProductCard } from "@/components/product/product-card";
 import { ProductGallery } from "@/components/product/product-gallery";
@@ -32,7 +33,32 @@ export async function generateMetadata({ params }: PageProps<"/produto/[slug]">)
   };
 }
 
-export default async function ProductPage({ params }: PageProps<"/produto/[slug]">) {
+/**
+ * O conteúdo fica dentro de <Suspense>: produtos criados no admin depois do build
+ * (slugs fora do generateStaticParams) são renderizados sob demanda sem bloquear a rota.
+ */
+export default function ProductPage({ params }: PageProps<"/produto/[slug]">) {
+  return (
+    <Suspense fallback={<ProductSkeleton />}>
+      <ProductView params={params} />
+    </Suspense>
+  );
+}
+
+function ProductSkeleton() {
+  return (
+    <div aria-hidden="true" className="grid gap-8 px-4 pt-6 md:px-8 md:pt-8 lg:grid-cols-12 lg:gap-12">
+      <div className="aspect-[4/5] animate-pulse rounded-card bg-haze lg:col-span-7" />
+      <div className="flex flex-col gap-4 lg:col-span-5">
+        <div className="h-12 w-3/4 animate-pulse rounded-sm bg-haze" />
+        <div className="h-6 w-1/3 animate-pulse rounded-sm bg-haze" />
+        <div className="h-40 animate-pulse rounded-card bg-haze" />
+      </div>
+    </div>
+  );
+}
+
+async function ProductView({ params }: { params: PageProps<"/produto/[slug]">["params"] }) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();

@@ -672,7 +672,7 @@ export const categories: readonly { slug: Category; label: string; description: 
 ];
 
 export const heroImage: ProductImage = {
-  src: "/images/hero/hero-puffer-front.webp",
+  src: "/images/hero/hero-puffer-front-2.webp",
   alt: "Homem de frente, em preto e branco, com boné, óculos e jaqueta puffer preta brilhante",
   width: 1101,
   height: 1800,

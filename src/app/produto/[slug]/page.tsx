@@ -7,10 +7,13 @@ import { ProductBadge } from "@/components/product/product-badge";
 import { ProductCard } from "@/components/product/product-card";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductPurchase } from "@/components/product/product-purchase";
+import { JsonLd } from "@/components/seo/json-ld";
 import { siteConfig } from "@/config/site";
 import { catalogHref, categoryLabels } from "@/lib/catalog";
 import { discountPercent, formatBRL, formatInstallments, pixPrice } from "@/lib/format";
+import { absoluteUrl } from "@/lib/site-url";
 import { getAllProductSlugs, getProductBySlug, getRelatedProducts } from "@/server/queries/products";
+import type { Product } from "@/types/product";
 
 export async function generateStaticParams() {
   const slugs = await getAllProductSlugs();
@@ -27,6 +30,9 @@ export async function generateMetadata({ params }: PageProps<"/produto/[slug]">)
     description: `${product.description} ${formatBRL(product.price)} ou ${formatInstallments(product.price)} sem juros.`,
     alternates: { canonical: `/produto/${product.slug}` },
     openGraph: {
+      type: "website",
+      locale: "pt_BR",
+      siteName: siteConfig.name,
       title,
       images: product.images[0] ? [{ url: product.images[0].src, alt: product.images[0].alt }] : undefined,
     },
@@ -70,6 +76,7 @@ async function ProductView({ params }: { params: PageProps<"/produto/[slug]">["p
 
   return (
     <div className="px-4 pt-6 md:px-8 md:pt-8">
+      <JsonLd data={productJsonLd(product, soldOut)} />
       <nav aria-label="Você está em" className="font-mono text-micro text-mute-strong">
         <ol className="flex flex-wrap items-center gap-1.5">
           <li>
@@ -170,7 +177,7 @@ async function ProductView({ params }: { params: PageProps<"/produto/[slug]">["p
                   <RotateCcw className="size-4" strokeWidth={1.5} aria-hidden="true" />
                 </span>
                 <span>
-                  <span className="block font-medium">troca em 30 dias</span>
+                  <span className="block font-medium">troca em {siteConfig.exchangeDays} dias</span>
                   <span className="text-xs text-ink-soft">
                     A primeira troca é grátis.{" "}
                     <Link href="/trocas-e-devolucoes" className="underline underline-offset-4">
@@ -230,4 +237,55 @@ async function ProductView({ params }: { params: PageProps<"/produto/[slug]">["p
       )}
     </div>
   );
+}
+
+/** Product + BreadcrumbList (schema.org) — habilita preço, estoque e trilha nos resultados do Google. */
+function productJsonLd(product: Product, soldOut: boolean): Record<string, unknown> {
+  const url = absoluteUrl(`/produto/${product.slug}`);
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "@id": `${url}#produto`,
+        name: `${product.name} ${product.colorway}`,
+        description: product.description,
+        sku: product.sku,
+        color: product.colorway,
+        category: categoryLabels[product.category],
+        image: product.images.map((img) => absoluteUrl(img.src)),
+        brand: { "@type": "Brand", name: siteConfig.name },
+        offers: {
+          "@type": "Offer",
+          url,
+          priceCurrency: siteConfig.currency,
+          price: (product.price / 100).toFixed(2),
+          availability: soldOut ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+          itemCondition: "https://schema.org/NewCondition",
+          seller: { "@type": "Organization", name: siteConfig.name },
+          hasMerchantReturnPolicy: {
+            "@type": "MerchantReturnPolicy",
+            applicableCountry: "BR",
+            returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+            merchantReturnDays: siteConfig.exchangeDays,
+            returnMethod: "https://schema.org/ReturnByMail",
+            returnFees: "https://schema.org/FreeReturn",
+          },
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "início", item: absoluteUrl("/") },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: categoryLabels[product.category],
+            item: absoluteUrl(`/catalogo?categoria=${product.category}`),
+          },
+          { "@type": "ListItem", position: 3, name: product.name, item: url },
+        ],
+      },
+    ],
+  };
 }

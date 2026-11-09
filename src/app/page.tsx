@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Authenticity } from "@/components/home/authenticity";
 import { LineIndex } from "@/components/home/line-index";
 import { CategoryTiles } from "@/components/home/category-tiles";
@@ -13,6 +14,8 @@ import {
   getNewDrops,
   getTrending,
 } from "@/server/queries/products";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function HomePage() {
   const [drop, newDrops, trending, lineSummary, covers] = await Promise.all([

@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { ThemeScript } from "@/components/theme/theme-script";
 import { siteConfig } from "@/config/site";
+import { siteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const unbounded = Unbounded({
@@ -27,12 +28,19 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(siteUrl),
   title: {
     default: `${siteConfig.name} — sneakers e streetwear originais`,
     template: `%s · ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  applicationName: siteConfig.name,
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    siteName: siteConfig.name,
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

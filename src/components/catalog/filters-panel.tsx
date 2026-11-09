@@ -139,24 +139,29 @@ export function FiltersPanel({ filters, facets }: { filters: CatalogFilters; fac
           {facets.cores.map(({ value, count }) => {
             const color = colorFamilies.find((c) => c.value === value);
             const checked = filters.cores.includes(value);
+            const empty = count === 0 && !checked;
             return (
               <li key={value}>
                 <label
                   className={cn(
                     "flex min-h-10 cursor-pointer items-center gap-2.5 rounded-sm has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ink",
-                    count === 0 && !checked && "opacity-50",
+                    empty && "cursor-not-allowed text-mute-strong",
                   )}
                 >
                   <input
                     type="checkbox"
                     className="peer sr-only"
                     checked={checked}
+                    disabled={empty}
                     onChange={() => go({ cores: toggle<ColorFamily>(filters.cores, value) })}
                   />
                   <span
                     aria-hidden="true"
                     style={{ backgroundColor: color?.swatch }}
-                    className="size-5 shrink-0 rounded-full border border-line-soft ring-offset-2 ring-offset-canvas peer-checked:ring-2 peer-checked:ring-ink"
+                    className={cn(
+                      "size-5 shrink-0 rounded-full border border-line-soft ring-offset-2 ring-offset-canvas peer-checked:ring-2 peer-checked:ring-ink",
+                      empty && "opacity-40",
+                    )}
                   />
                   <span className={cn(checked && "font-medium")}>{color?.label}</span>
                   <Count n={count} />

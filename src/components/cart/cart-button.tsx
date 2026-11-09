@@ -9,17 +9,19 @@ import { useCartDrawer } from "@/store/cart-ui";
 export function CartButton() {
   const count = useCart((state) => cartCount(state.lines));
   const setOpen = useCartDrawer((s) => s.setOpen);
+  const padded = String(count).padStart(2, "0");
 
   return (
     <button
       type="button"
       onClick={() => setOpen(true)}
       aria-haspopup="dialog"
-      aria-label={`Abrir sacola, ${count} ${count === 1 ? "item" : "itens"}`}
+      // o nome acessível começa pelo texto visível (WCAG 2.5.3): quem usa comando de voz diz "sacola"
+      aria-label={`sacola · ${padded}, ${count} ${count === 1 ? "item" : "itens"}`}
       className={cn(buttonVariants({ variant: "outline", size: "sm" }), "font-mono tabular-nums normal-case")}
     >
       sacola · <span key={count} className="inline-block animate-in fade-in zoom-in-75 duration-300">
-        {String(count).padStart(2, "0")}
+        {padded}
       </span>
     </button>
   );

@@ -1,6 +1,6 @@
-import { BadgeCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { SourceTag } from "@/components/reviews/reviews-section";
 import { Stars, starsLabel } from "@/components/reviews/stars";
 import { formatRating, reviewCountLabel, type RatingSummary } from "@/lib/reviews";
 import type { FeaturedReview } from "@/server/reviews";
@@ -29,7 +29,7 @@ export function Testimonials({ reviews, store }: { reviews: FeaturedReview[]; st
           </div>
         </div>
         <p className="mt-5 max-w-[38ch] text-sm text-ink-soft">
-          Só publicamos avaliações de pedidos entregues. Na página de cada produto estão todas, boas ou ruins.
+          Avaliações de pedidos entregues e depoimentos que clientes mandaram por mensagem, publicados com autorização. Na página de cada produto estão todas, boas ou ruins.
         </p>
       </div>
 
@@ -58,10 +58,7 @@ export function Testimonials({ reviews, store }: { reviews: FeaturedReview[]; st
                   <span className="flex flex-wrap items-center gap-x-2 font-mono text-micro">
                     <span className="text-ink">{review.authorName}</span>
                     {review.city && <span className="text-mute-strong">{review.city}</span>}
-                    <span className="inline-flex items-center gap-1 text-success">
-                      <BadgeCheck className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
-                      verificada
-                    </span>
+                    <SourceTag source={review.source} short />
                   </span>
                   <Link
                     href={`/produto/${review.product.slug}#avaliacoes`}

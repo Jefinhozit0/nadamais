@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { Prisma } from "@/generated/prisma/client";
 import { productInputSchema } from "@/lib/admin-schema";
+import { displayName, manualReviewSchema } from "@/lib/reviews";
 import { requireAdmin } from "@/server/admin";
 import { CATALOG_TAG } from "@/server/catalog-source";
 import { db } from "@/server/db";
@@ -179,6 +180,61 @@ export async function setReviewHidden(formData: FormData): Promise<void> {
   const hidden = formData.get("hidden") === "true";
   if (!id) return;
   await db.review.update({ where: { id }, data: { hidden } });
+  updateTag(REVIEWS_TAG);
+  updateTag(CATALOG_TAG);
+  revalidatePath("/admin/avaliacoes");
+}
+
+export type ManualReviewState = { ok?: boolean; error?: string; fields?: Record<string, string>; values?: Record<string, string> };
+
+/**
+ * Cadastra um depoimento recebido fora do site (WhatsApp, Instagram…). Fica marcado como
+ * "recebida por mensagem", com a data real e o registro da autorização — nunca como compra verificada.
+ */
+export async function createManualReview(_prev: ManualReviewState, formData: FormData): Promise<ManualReviewState> {
+  const admin = await requireAdmin();
+  const values: Record<string, string> = {};
+  for (const [k, v] of formData) if (typeof v === "string" && !k.startsWith("$")) values[k] = v;
+
+  const parsed = manualReviewSchema.safeParse({ ...values, fit: values.fit || undefined });
+  if (!parsed.success) {
+    const fields: Record<string, string> = {};
+    for (const issue of parsed.error.issues) fields[String(issue.path[0] ?? "form")] ??= issue.message;
+    return { error: "Confira os campos destacados.", fields, values };
+  }
+  const r = parsed.data;
+  const product = await db.product.findUnique({ where: { id: r.productId }, select: { id: true } });
+  if (!product) return { error: "Produto não encontrado.", fields: { productId: "Escolha o produto." }, values };
+
+  await db.review.create({
+    data: {
+      source: "mensagem",
+      productId: r.productId,
+      rating: r.rating,
+      title: r.title || null,
+      body: r.body,
+      fit: r.fit ?? null,
+      size: r.size || null,
+      authorName: displayName(r.customerName),
+      city: r.city || null,
+      consentNote: r.consentNote,
+      importedBy: admin.email,
+      // data em que o depoimento foi recebido (meio-dia de Brasília, para não virar o dia)
+      createdAt: new Date(`${r.receivedAt}T12:00:00-03:00`),
+    },
+  });
+  updateTag(REVIEWS_TAG);
+  updateTag(CATALOG_TAG);
+  revalidatePath("/admin/avaliacoes");
+  return { ok: true };
+}
+
+/** Exclui um depoimento cadastrado pelo admin (avaliações feitas pelo site só podem ser ocultadas). */
+export async function deleteManualReview(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await db.review.deleteMany({ where: { id, source: "mensagem" } });
   updateTag(REVIEWS_TAG);
   updateTag(CATALOG_TAG);
   revalidatePath("/admin/avaliacoes");

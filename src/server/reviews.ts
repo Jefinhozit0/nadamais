@@ -28,6 +28,7 @@ export const REVIEWS_TAG = "reviews";
 
 const PUBLIC_SELECT = {
   id: true,
+  source: true,
   rating: true,
   title: true,
   body: true,
@@ -40,6 +41,7 @@ const PUBLIC_SELECT = {
 
 type ReviewRow = {
   id: string;
+  source: Review["source"];
   rating: number;
   title: string | null;
   body: string;
@@ -53,6 +55,7 @@ type ReviewRow = {
 function toReview(row: ReviewRow): Review {
   return {
     id: row.id,
+    source: row.source,
     rating: row.rating,
     title: row.title || undefined,
     body: row.body,
@@ -80,21 +83,32 @@ export async function loadRatingMap(): Promise<Map<string, RatingSummary>> {
   });
 }
 
-export type ProductReviews = { stats: ReviewStats; reviews: Review[] };
+export type ProductReviews = {
+  stats: ReviewStats;
+  /** Só compras verificadas — é o que vai para as estrelas do Google. */
+  verified: { average: number; count: number };
+  reviews: Review[];
+};
 
 /** Resumo completo + avaliações mais recentes de um produto. */
 export async function getProductReviews(productId: string, take = 30): Promise<ProductReviews> {
   "use cache";
   cacheLife("minutes");
   cacheTag(REVIEWS_TAG);
-  if (!hasDatabase()) return { stats: emptyStats(), reviews: [] };
+  if (!hasDatabase()) return { stats: emptyStats(), verified: { average: 0, count: 0 }, reviews: [] };
   const where = { productId, hidden: false };
-  return safely("avaliações do produto", { stats: emptyStats(), reviews: [] }, async () => {
+  const empty: ProductReviews = { stats: emptyStats(), verified: { average: 0, count: 0 }, reviews: [] };
+  return safely("avaliações do produto", empty, async () => {
     const [all, latest] = await Promise.all([
-      db.review.findMany({ where, select: { rating: true, fit: true } }),
+      db.review.findMany({ where, select: { rating: true, fit: true, source: true } }),
       db.review.findMany({ where, select: PUBLIC_SELECT, orderBy: { createdAt: "desc" }, take }),
     ]);
-    return { stats: computeStats(all), reviews: latest.map(toReview) };
+    const verified = computeStats(all.filter((r) => r.source === "site"));
+    return {
+      stats: computeStats(all),
+      verified: { average: verified.average, count: verified.count },
+      reviews: latest.map(toReview),
+    };
   });
 }
 
@@ -153,7 +167,15 @@ export async function getReviewEligibility(profileId: string, productId: string)
 export async function listAdminReviews(filter: { hidden?: boolean }, take = 100) {
   const rows = await db.review.findMany({
     where: filter.hidden === undefined ? {} : { hidden: filter.hidden },
-    select: { ...PUBLIC_SELECT, hidden: true, orderId: true, product: { select: { name: true, slug: true } }, profile: { select: { email: true } } },
+    select: {
+      ...PUBLIC_SELECT,
+      hidden: true,
+      orderId: true,
+      consentNote: true,
+      importedBy: true,
+      product: { select: { name: true, slug: true } },
+      profile: { select: { email: true } },
+    },
     orderBy: { createdAt: "desc" },
     take,
   });
@@ -162,7 +184,9 @@ export async function listAdminReviews(filter: { hidden?: boolean }, take = 100)
     hidden: r.hidden,
     orderId: r.orderId ?? undefined,
     product: r.product,
-    email: r.profile.email,
+    email: r.profile?.email,
+    consentNote: r.consentNote ?? undefined,
+    importedBy: r.importedBy ?? undefined,
   }));
 }
 
@@ -175,5 +199,14 @@ export async function getStoreRating(): Promise<RatingSummary> {
   return safely("média da loja", { average: 0, count: 0 }, async () => {
     const agg = await db.review.aggregate({ where: { hidden: false }, _avg: { rating: true }, _count: { _all: true } });
     return { average: Math.round((agg._avg.rating ?? 0) * 10) / 10, count: agg._count._all };
+  });
+}
+
+/** Produtos para o cadastro manual de depoimentos. */
+export async function listReviewableProducts() {
+  return db.product.findMany({
+    where: { active: true },
+    select: { id: true, name: true, colorway: true, sizeSystem: true, sizes: { select: { label: true }, orderBy: { position: "asc" } } },
+    orderBy: { name: "asc" },
   });
 }

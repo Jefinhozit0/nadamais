@@ -88,6 +88,7 @@ Testes: a Paymento não tem sandbox; use as redes de teste (Bitcoin testnet, Eth
 - A média vai para o JSON-LD do produto (estrelas no Google).
 - Moderação em `/admin/avaliacoes`: ocultar ou republicar. Oculte só o que fere as regras (ofensa, dados pessoais, spam). Esconder crítica legítima, ou publicar avaliações inventadas, é publicidade enganosa (CDC) e viola as regras do Google.
 - No pedido entregue (`/pedido/[id]`), cada item tem o link "avaliar".
+- **Depoimentos recebidos por mensagem** (WhatsApp, Instagram, e-mail): cadastre em `/admin/avaliacoes` → "cadastrar depoimento recebido por mensagem". O cadastro exige a data em que chegou, onde foi recebido, como o cliente autorizou e a confirmação de que é real. Aparecem com o selo "recebida por mensagem" (não "compra verificada") e ficam fora das estrelas do Google. Guarde o print da autorização.
 
 **Provisório:** o frete vem de uma tabela por região (`src/lib/shipping.ts`). Para produção, troque `quoteShipping` por Melhor Envio, Correios ou Frenet.
 

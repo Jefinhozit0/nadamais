@@ -1,11 +1,13 @@
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, MessageCircle } from "lucide-react";
 import { Suspense } from "react";
 import {
   fitLabels,
   fitVerdict,
   formatRating,
   reviewCountLabel,
+  sourceLabels,
   type Review,
+  type ReviewSource,
   type ReviewStats,
 } from "@/lib/reviews";
 import { ReviewFormSlot } from "./review-form-slot";
@@ -44,7 +46,7 @@ export function ReviewsSection({ product, stats, reviews }: Props) {
                 </p>
                 <div className="flex flex-col gap-1.5 pb-1">
                   <Stars value={stats.average} starClassName="size-4" label={starsLabel(stats.average)} />
-                  <p className="font-mono text-xs text-mute-strong">{reviewCountLabel(stats.count)} de quem comprou</p>
+                  <p className="font-mono text-xs text-mute-strong">{reviewCountLabel(stats.count)}</p>
                 </div>
               </div>
 
@@ -81,7 +83,7 @@ export function ReviewsSection({ product, stats, reviews }: Props) {
             </div>
           ) : (
             <p className="mt-6 max-w-[38ch] text-sm text-ink-soft">
-              Ainda sem avaliações. Quem recebe o pedido pode avaliar — só publicamos opiniões de compras confirmadas.
+              Ainda sem avaliações. Quem recebe o pedido pode avaliar por aqui.
             </p>
           )}
 
@@ -108,10 +110,7 @@ export function ReviewsSection({ product, stats, reviews }: Props) {
                   <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-micro text-mute-strong">
                     <span className="text-ink">{review.authorName}</span>
                     {review.city && <span>{review.city}</span>}
-                    <span className="inline-flex items-center gap-1 text-success">
-                      <BadgeCheck className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
-                      compra verificada
-                    </span>
+                    <SourceTag source={review.source} />
                     {review.size && review.size !== "U" && <span>comprou tam {review.size}</span>}
                     {review.fit && <span>{fitLabels[review.fit]}</span>}
                   </p>
@@ -122,5 +121,18 @@ export function ReviewsSection({ product, stats, reviews }: Props) {
         )}
       </div>
     </section>
+  );
+}
+
+/** Origem da avaliação: compra verificada pelo site ou depoimento recebido por mensagem. */
+export function SourceTag({ source, short = false }: { source: ReviewSource; short?: boolean }) {
+  const Icon = source === "site" ? BadgeCheck : MessageCircle;
+  const label = short ? (source === "site" ? "verificada" : "por mensagem") : sourceLabels[source];
+  return (
+    <span className={source === "site" ? "inline-flex items-center gap-1 text-success" : "inline-flex items-center gap-1 text-mute-strong"}>
+      <Icon className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
+      {label}
+      {short && <span className="sr-only"> ({sourceLabels[source]})</span>}
+    </span>
   );
 }

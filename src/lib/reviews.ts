@@ -10,8 +10,17 @@ export const fitLabels: Record<ReviewFit, string> = {
   grande: "veste grande",
 };
 
+/** site = compra verificada; mensagem = depoimento recebido fora do site e cadastrado pelo admin. */
+export type ReviewSource = "site" | "mensagem";
+
+export const sourceLabels: Record<ReviewSource, string> = {
+  site: "compra verificada",
+  mensagem: "recebida por mensagem",
+};
+
 export type Review = {
   id: string;
+  source: ReviewSource;
   rating: number;
   title?: string;
   body: string;
@@ -51,6 +60,28 @@ export const reviewInputSchema = z.object({
     .min(REVIEW_BODY_MIN, { error: `Conte um pouco mais (mínimo de ${REVIEW_BODY_MIN} caracteres).` })
     .max(REVIEW_BODY_MAX, { error: `Até ${REVIEW_BODY_MAX} caracteres.` }),
   fit: z.enum(["pequeno", "certo", "grande"]).optional().catch(undefined),
+});
+
+/** Depoimento recebido por mensagem, cadastrado no admin. */
+export const manualReviewSchema = z.object({
+  productId: z.string().min(1, { error: "Escolha o produto." }).max(40),
+  customerName: z.string().trim().min(2, { error: "Informe o nome do cliente." }).max(80),
+  city: z.string().trim().max(60).optional().default(""),
+  rating: reviewInputSchema.shape.rating,
+  title: reviewInputSchema.shape.title,
+  body: reviewInputSchema.shape.body,
+  fit: reviewInputSchema.shape.fit,
+  size: z.string().trim().max(10).optional().default(""),
+  receivedAt: z.iso
+    .date({ error: "Informe a data em que recebeu o depoimento." })
+    .refine((d) => new Date(`${d}T12:00:00-03:00`).getTime() <= Date.now(), { error: "A data não pode estar no futuro." })
+    .refine((d) => d >= "2000-01-01", { error: "Data inválida." }),
+  consentNote: z
+    .string()
+    .trim()
+    .min(10, { error: "Diga onde recebeu e como o cliente autorizou (ex.: WhatsApp, print guardado)." })
+    .max(300),
+  consent: z.literal("on", { error: "Confirme que o depoimento é real e que o cliente autorizou a publicação." }),
 });
 
 /** "ana clara de souza" → "Ana S." — nunca exibimos o nome completo do cliente. */

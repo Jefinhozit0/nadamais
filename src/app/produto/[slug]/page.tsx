@@ -13,7 +13,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { siteConfig } from "@/config/site";
 import { catalogHref, categoryLabels } from "@/lib/catalog";
 import { discountPercent, formatBRL, formatInstallments, pixPrice } from "@/lib/format";
-import { formatRating, reviewCountLabel, type Review, type ReviewStats } from "@/lib/reviews";
+import { formatRating, reviewCountLabel, type Review } from "@/lib/reviews";
 import { absoluteUrl } from "@/lib/site-url";
 import { getAllProductSlugs, getProductBySlug, getRelatedProducts } from "@/server/queries/products";
 import { getProductReviews } from "@/server/reviews";
@@ -73,14 +73,14 @@ async function ProductView({ params }: { params: PageProps<"/produto/[slug]">["p
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const [related, { stats, reviews }] = await Promise.all([getRelatedProducts(product, 4), getProductReviews(product.id)]);
+  const [related, { stats, verified, reviews }] = await Promise.all([getRelatedProducts(product, 4), getProductReviews(product.id)]);
   const soldOut = product.sizes.every((s) => s.stock === 0);
   const off = product.compareAtPrice ? discountPercent(product.price, product.compareAtPrice) : 0;
   const pixPercent = Math.round(siteConfig.pixDiscount * 100);
 
   return (
     <div className="px-4 pt-6 md:px-8 md:pt-8">
-      <JsonLd data={productJsonLd(product, soldOut, stats, reviews)} />
+      <JsonLd data={productJsonLd(product, soldOut, verified, reviews)} />
       <nav aria-label="Você está em" className="font-mono text-micro text-mute-strong">
         <ol className="flex flex-wrap items-center gap-1.5">
           <li>
@@ -258,7 +258,12 @@ async function ProductView({ params }: { params: PageProps<"/produto/[slug]">["p
 }
 
 /** Product + BreadcrumbList (schema.org) — habilita preço, estoque e trilha nos resultados do Google. */
-function productJsonLd(product: Product, soldOut: boolean, stats: ReviewStats, reviews: Review[]): Record<string, unknown> {
+function productJsonLd(
+  product: Product,
+  soldOut: boolean,
+  verified: { average: number; count: number },
+  reviews: Review[],
+): Record<string, unknown> {
   const url = absoluteUrl(`/produto/${product.slug}`);
   return {
     "@context": "https://schema.org",
@@ -273,16 +278,19 @@ function productJsonLd(product: Product, soldOut: boolean, stats: ReviewStats, r
         category: categoryLabels[product.category],
         image: product.images.map((img) => absoluteUrl(img.src)),
         brand: { "@type": "Brand", name: siteConfig.name },
-        // só avaliações reais, publicadas na própria página (exigência do Google)
-        ...(stats.count > 0 && {
+        // só compras verificadas pelo site: depoimentos recebidos por mensagem não entram (regra do Google)
+        ...(verified.count > 0 && {
           aggregateRating: {
             "@type": "AggregateRating",
-            ratingValue: stats.average,
-            reviewCount: stats.count,
+            ratingValue: verified.average,
+            reviewCount: verified.count,
             bestRating: 5,
             worstRating: 1,
           },
-          review: reviews.slice(0, 5).map((r) => ({
+          review: reviews
+            .filter((r) => r.source === "site")
+            .slice(0, 5)
+            .map((r) => ({
             "@type": "Review",
             reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 },
             author: { "@type": "Person", name: r.authorName },

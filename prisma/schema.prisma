@@ -257,36 +257,50 @@ model OrderItem {
 
 // ——— Avaliações ———
 
+/// site = cliente avaliou pelo site depois da entrega (compra verificada);
+/// mensagem = depoimento recebido fora do site (WhatsApp, Instagram…) e cadastrado pelo admin com autorização.
+enum ReviewSource {
+  site
+  mensagem
+}
+
 enum ReviewFit {
   pequeno
   certo
   grande
 }
 
-/// Avaliação de produto. Só quem recebeu o produto (pedido entregue) pode avaliar; uma por cliente e produto.
+/// Avaliação de produto. Pelo site, só quem recebeu o produto (pedido entregue) avalia; uma por cliente e produto.
+/// Depoimentos recebidos por mensagem são cadastrados pelo admin (sem perfil) e marcados como tal.
 model Review {
-  id         String     @id @default(cuid())
-  productId  String
-  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
-  profileId  String     @db.Uuid
-  profile    Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  id          String       @id @default(cuid())
+  source      ReviewSource @default(site)
+  productId   String
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  /// Vazio em depoimentos cadastrados pelo admin.
+  profileId   String?      @db.Uuid
+  profile     Profile?     @relation(fields: [profileId], references: [id], onDelete: Cascade)
   /// Pedido que comprova a compra.
-  orderId    String?
-  order      Order?     @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  orderId     String?
+  order       Order?       @relation(fields: [orderId], references: [id], onDelete: SetNull)
   /// 1 a 5.
-  rating     Int
-  title      String?
-  body       String
-  fit        ReviewFit?
+  rating      Int
+  title       String?
+  body        String
+  fit         ReviewFit?
   /// Tamanho comprado (do pedido).
-  size       String?
+  size        String?
   /// Exibição: "Ana C." e "Recife, PE" (snapshot, não expõe o nome completo).
-  authorName String
-  city       String?
+  authorName  String
+  city        String?
+  /// Depoimento por mensagem: onde foi recebido e como o cliente autorizou (só o admin vê).
+  consentNote String?
+  /// E-mail do admin que cadastrou o depoimento.
+  importedBy  String?
   /// Moderação do admin.
-  hidden     Boolean    @default(false)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  hidden      Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   @@unique([profileId, productId])
   @@index([productId, hidden, createdAt])

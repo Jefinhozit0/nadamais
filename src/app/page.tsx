@@ -5,6 +5,7 @@ import { CategoryTiles } from "@/components/home/category-tiles";
 import { Hero } from "@/components/home/hero";
 import { ProductRail } from "@/components/home/product-rail";
 import { SectionHeading } from "@/components/home/section-heading";
+import { StoryScroll } from "@/components/home/story-scroll";
 import { Testimonials } from "@/components/home/testimonials";
 import { ProductCard } from "@/components/product/product-card";
 import { lines } from "@/data/products";
@@ -55,6 +56,10 @@ export default async function HomePage() {
           <CategoryTiles covers={covers} />
         </section>
 
+        <section aria-labelledby="historia-title">
+          <StoryScroll />
+        </section>
+
         <section aria-labelledby="linhas-title">
           <SectionHeading id="linhas-title" title="linhas" />
           <div className="mt-8">
@@ -73,7 +78,7 @@ export default async function HomePage() {
           <SectionHeading id="alta-title" title="em alta" link={{ href: "/catalogo", label: "catálogo completo" }} />
           <ul className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
             {trending.map((product) => (
-              <li key={product.id}>
+              <li key={product.id} className="reveal">
                 <ProductCard product={product} />
               </li>
             ))}

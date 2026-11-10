@@ -35,7 +35,7 @@ export function Testimonials({ reviews, store }: { reviews: FeaturedReview[]; st
 
       <ul className="grid gap-3 sm:grid-cols-2 md:gap-4 lg:col-span-8">
         {reviews.map((review, i) => (
-          <li key={review.id} className={i === 0 ? "sm:col-span-2" : undefined}>
+          <li key={review.id} className={i === 0 ? "reveal sm:col-span-2" : "reveal"}>
             <figure className="flex h-full flex-col gap-4 rounded-card border border-line bg-canvas p-5 md:p-6">
               <Stars value={review.rating} label={starsLabel(review.rating)} />
               <blockquote className="flex-1">

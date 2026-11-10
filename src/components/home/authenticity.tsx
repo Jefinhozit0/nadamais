@@ -31,7 +31,7 @@ export function Authenticity() {
       <div className="lg:col-span-5">
         <h2
           id="qualidade-title"
-          className="font-display text-[clamp(2rem,5vw,3.75rem)] leading-[0.95] font-semibold tracking-[-0.03em]"
+          className="reveal font-display text-[clamp(2rem,5vw,3.75rem)] leading-[0.95] font-semibold tracking-[-0.03em]"
         >
           Feito para durar. Ou a gente troca.
         </h2>
@@ -42,7 +42,7 @@ export function Authenticity() {
       </div>
       <ul className="lg:col-span-6 lg:col-start-7">
         {promises.map(({ icon: Icon, title, text }) => (
-          <li key={title} className="flex gap-4 border-t border-line-soft py-5 last:border-b">
+          <li key={title} className="reveal flex gap-4 border-t border-line-soft py-5 last:border-b">
             <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-sm border border-ink">
               <Icon className="size-5" strokeWidth={1.5} aria-hidden="true" />
             </span>

@@ -18,7 +18,8 @@ describe("depoimento por mensagem: validação", () => {
   });
 
   it("exige a confirmação e a nota da autorização", () => {
-    const { consent: _c, ...noConsent } = base;
+    const { consent, ...noConsent } = base;
+    void consent;
     expect(manualReviewSchema.safeParse(noConsent).success).toBe(false);
     expect(manualReviewSchema.safeParse({ ...base, consentNote: "ok" }).success).toBe(false);
   });
@@ -68,7 +69,8 @@ describe("depoimento por mensagem: cadastro", () => {
   });
 
   it("sem confirmação não grava", async () => {
-    const { consent: _c, ...rest } = base;
+    const { consent, ...rest } = base;
+    void consent;
     const res = await createManualReview({}, form(rest));
     expect(res.fields?.consent).toBeDefined();
     expect(created).toHaveLength(0);

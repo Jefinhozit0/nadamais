@@ -149,6 +149,14 @@
     scrollbar-color: var(--mute) var(--paper);
   }
 
+  /* A lista aberta de um <select> é desenhada pelo sistema: sem cor explícita,
+     no tema escuro herda texto claro sobre fundo branco e fica ilegível. */
+  select option,
+  select optgroup {
+    background-color: var(--canvas);
+    color: var(--ink);
+  }
+
   h1,
   h2,
   h3 {

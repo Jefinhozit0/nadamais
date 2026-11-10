@@ -72,6 +72,7 @@ model Product {
   sizes      ProductSize[]
   wishlists  WishlistItem[]
   orderItems OrderItem[]
+  reviews    Review[]
 
   @@index([active, category])
   @@index([active, line])
@@ -125,6 +126,7 @@ model Profile {
   addresses Address[]
   wishlist  WishlistItem[]
   orders    Order[]
+  reviews   Review[]
 }
 
 model Address {
@@ -230,7 +232,8 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  items OrderItem[]
+  items   OrderItem[]
+  reviews Review[]
 
   @@index([profileId, createdAt])
   @@index([customerEmail])
@@ -250,4 +253,42 @@ model OrderItem {
   unitPrice Int
   total     Int
   image     String?
+}
+
+// ——— Avaliações ———
+
+enum ReviewFit {
+  pequeno
+  certo
+  grande
+}
+
+/// Avaliação de produto. Só quem recebeu o produto (pedido entregue) pode avaliar; uma por cliente e produto.
+model Review {
+  id         String     @id @default(cuid())
+  productId  String
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  profileId  String     @db.Uuid
+  profile    Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  /// Pedido que comprova a compra.
+  orderId    String?
+  order      Order?     @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  /// 1 a 5.
+  rating     Int
+  title      String?
+  body       String
+  fit        ReviewFit?
+  /// Tamanho comprado (do pedido).
+  size       String?
+  /// Exibição: "Ana C." e "Recife, PE" (snapshot, não expõe o nome completo).
+  authorName String
+  city       String?
+  /// Moderação do admin.
+  hidden     Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@unique([profileId, productId])
+  @@index([productId, hidden, createdAt])
+  @@index([hidden, rating, createdAt])
 }

@@ -207,6 +207,14 @@ async function OrderView({ params }: { params: PageProps<"/pedido/[id]">["params
                 <span className="block font-mono text-xs text-mute-strong">
                   tam {line.size} · {line.quantity}×
                 </span>
+                {order.status === "entregue" && line.slug && (
+                  <Link
+                    href={`/produto/${line.slug}#avaliacoes`}
+                    className="mt-1 inline-block rounded-sm text-xs underline underline-offset-4"
+                  >
+                    avaliar<span className="sr-only"> {line.name}</span>
+                  </Link>
+                )}
               </span>
               <span className="font-mono text-sm tabular-nums">{formatBRL(line.total)}</span>
             </li>

@@ -4,6 +4,7 @@ import { products as mockProducts } from "@/data/products";
 import type { Prisma } from "@/generated/prisma/client";
 import type { Product } from "@/types/product";
 import { db } from "./db";
+import { loadRatingMap } from "./reviews";
 
 /**
  * Fonte do catálogo.
@@ -57,14 +58,17 @@ export function toProduct(row: ProductRow): Product {
   };
 }
 
-/** Catálogo ativo, em cache (vitrine). Invalidado com revalidateTag(CATALOG_TAG). */
+/** Catálogo ativo (com média das avaliações), em cache. Invalidado com updateTag(CATALOG_TAG). */
 export async function loadCatalog(): Promise<Product[]> {
   "use cache";
   cacheLife("minutes");
   cacheTag(CATALOG_TAG);
   if (!hasDatabase()) return [...mockProducts];
-  const rows = await db.product.findMany({ where: { active: true }, include, orderBy: { popularity: "desc" } });
-  return rows.map(toProduct);
+  const [rows, ratings] = await Promise.all([
+    db.product.findMany({ where: { active: true }, include, orderBy: { popularity: "desc" } }),
+    loadRatingMap(),
+  ]);
+  return rows.map((row) => ({ ...toProduct(row), rating: ratings.get(row.id) }));
 }
 
 /** Produtos sem cache (preço e estoque autoritativos para o checkout). */

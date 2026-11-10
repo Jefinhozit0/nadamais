@@ -66,4 +66,6 @@ export type Product = {
   /** 0–100. Usado em "em alta" e na ordenação por relevância. */
   popularity: number;
   badge?: ProductBadge;
+  /** Média das avaliações publicadas (só quando há pelo menos uma). */
+  rating?: { average: number; count: number };
 };

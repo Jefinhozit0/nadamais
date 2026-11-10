@@ -80,6 +80,15 @@ Fluxo: o pedido é criado (estoque reservado) → a loja pede um token à Paymen
 
 Testes: a Paymento não tem sandbox; use as redes de teste (Bitcoin testnet, Ethereum Sepolia, Tron Shasta) — veja "Testing and Simulation" na documentação deles.
 
+## Avaliações de clientes
+
+- Só quem **recebeu** o produto avalia: o pedido precisa estar "entregue" (marcado no admin). Uma avaliação por cliente e produto, que ele pode editar ou remover.
+- Aparecem nos cards (média e total), na página do produto (média, distribuição das notas, caimento e lista com "compra verificada") e na home ("quem comprou, conta."), que só aparece quando existe ao menos uma avaliação nota 4 ou 5.
+- Exibe primeiro nome, inicial do sobrenome e a cidade do pedido.
+- A média vai para o JSON-LD do produto (estrelas no Google).
+- Moderação em `/admin/avaliacoes`: ocultar ou republicar. Oculte só o que fere as regras (ofensa, dados pessoais, spam). Esconder crítica legítima, ou publicar avaliações inventadas, é publicidade enganosa (CDC) e viola as regras do Google.
+- No pedido entregue (`/pedido/[id]`), cada item tem o link "avaliar".
+
 **Provisório:** o frete vem de uma tabela por região (`src/lib/shipping.ts`). Para produção, troque `quoteShipping` por Melhor Envio, Correios ou Frenet.
 
 ## Testes

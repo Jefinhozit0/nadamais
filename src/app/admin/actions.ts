@@ -9,6 +9,7 @@ import { requireAdmin } from "@/server/admin";
 import { CATALOG_TAG } from "@/server/catalog-source";
 import { db } from "@/server/db";
 import { updateOrder, type OrderStatus } from "@/server/orders";
+import { REVIEWS_TAG } from "@/server/reviews";
 
 /** Vitrine reflete na hora: expira o catálogo em cache e as páginas já geradas (produto, home, catálogo). */
 function refreshStorefront() {
@@ -169,4 +170,16 @@ export async function updateOrderStatus(_prev: OrderFormState, formData: FormDat
   revalidatePath("/admin/pedidos");
   revalidatePath("/admin");
   return { ok: true };
+}
+
+/** Moderação: oculta ou republica uma avaliação (não apaga — o cliente pode editar a dele). */
+export async function setReviewHidden(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const hidden = formData.get("hidden") === "true";
+  if (!id) return;
+  await db.review.update({ where: { id }, data: { hidden } });
+  updateTag(REVIEWS_TAG);
+  updateTag(CATALOG_TAG);
+  revalidatePath("/admin/avaliacoes");
 }

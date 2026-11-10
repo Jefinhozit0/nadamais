@@ -7,12 +7,16 @@ import { ProductBadge } from "@/components/product/product-badge";
 import { ProductCard } from "@/components/product/product-card";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductPurchase } from "@/components/product/product-purchase";
+import { ReviewsSection } from "@/components/reviews/reviews-section";
+import { Stars, starsLabel } from "@/components/reviews/stars";
 import { JsonLd } from "@/components/seo/json-ld";
 import { siteConfig } from "@/config/site";
 import { catalogHref, categoryLabels } from "@/lib/catalog";
 import { discountPercent, formatBRL, formatInstallments, pixPrice } from "@/lib/format";
+import { formatRating, reviewCountLabel, type Review, type ReviewStats } from "@/lib/reviews";
 import { absoluteUrl } from "@/lib/site-url";
 import { getAllProductSlugs, getProductBySlug, getRelatedProducts } from "@/server/queries/products";
+import { getProductReviews } from "@/server/reviews";
 import type { Product } from "@/types/product";
 
 export async function generateStaticParams() {
@@ -69,14 +73,14 @@ async function ProductView({ params }: { params: PageProps<"/produto/[slug]">["p
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const related = await getRelatedProducts(product, 4);
+  const [related, { stats, reviews }] = await Promise.all([getRelatedProducts(product, 4), getProductReviews(product.id)]);
   const soldOut = product.sizes.every((s) => s.stock === 0);
   const off = product.compareAtPrice ? discountPercent(product.price, product.compareAtPrice) : 0;
   const pixPercent = Math.round(siteConfig.pixDiscount * 100);
 
   return (
     <div className="px-4 pt-6 md:px-8 md:pt-8">
-      <JsonLd data={productJsonLd(product, soldOut)} />
+      <JsonLd data={productJsonLd(product, soldOut, stats, reviews)} />
       <nav aria-label="Você está em" className="font-mono text-micro text-mute-strong">
         <ol className="flex flex-wrap items-center gap-1.5">
           <li>
@@ -126,6 +130,18 @@ async function ProductView({ params }: { params: PageProps<"/produto/[slug]">["p
               <p className="mt-2 text-sm text-ink-soft">
                 {product.colorway} · <span className="font-mono text-xs">{product.sku}</span>
               </p>
+              {stats.count > 0 && (
+                <a
+                  href="#avaliacoes"
+                  className="mt-3 inline-flex items-center gap-2 rounded-sm py-1 font-mono text-xs tabular-nums underline-offset-4 hover:underline"
+                >
+                  <Stars value={stats.average} />
+                  <span>
+                    {formatRating(stats.average)} <span className="text-mute-strong">· {reviewCountLabel(stats.count)}</span>
+                    <span className="sr-only"> — {starsLabel(stats.average)}, ver avaliações</span>
+                  </span>
+                </a>
+              )}
             </div>
 
             <div className="font-mono tabular-nums">
@@ -218,6 +234,8 @@ async function ProductView({ params }: { params: PageProps<"/produto/[slug]">["p
         </div>
       </div>
 
+      <ReviewsSection product={product} stats={stats} reviews={reviews} />
+
       {related.length > 0 && (
         <section aria-labelledby="relacionados" className="mt-24 md:mt-36">
           <h2
@@ -240,7 +258,7 @@ async function ProductView({ params }: { params: PageProps<"/produto/[slug]">["p
 }
 
 /** Product + BreadcrumbList (schema.org) — habilita preço, estoque e trilha nos resultados do Google. */
-function productJsonLd(product: Product, soldOut: boolean): Record<string, unknown> {
+function productJsonLd(product: Product, soldOut: boolean, stats: ReviewStats, reviews: Review[]): Record<string, unknown> {
   const url = absoluteUrl(`/produto/${product.slug}`);
   return {
     "@context": "https://schema.org",
@@ -255,6 +273,24 @@ function productJsonLd(product: Product, soldOut: boolean): Record<string, unkno
         category: categoryLabels[product.category],
         image: product.images.map((img) => absoluteUrl(img.src)),
         brand: { "@type": "Brand", name: siteConfig.name },
+        // só avaliações reais, publicadas na própria página (exigência do Google)
+        ...(stats.count > 0 && {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: stats.average,
+            reviewCount: stats.count,
+            bestRating: 5,
+            worstRating: 1,
+          },
+          review: reviews.slice(0, 5).map((r) => ({
+            "@type": "Review",
+            reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+            author: { "@type": "Person", name: r.authorName },
+            datePublished: r.createdAt.slice(0, 10),
+            ...(r.title && { name: r.title }),
+            reviewBody: r.body,
+          })),
+        }),
         offers: {
           "@type": "Offer",
           url,

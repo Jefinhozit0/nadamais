@@ -5,6 +5,7 @@ import { CategoryTiles } from "@/components/home/category-tiles";
 import { Hero } from "@/components/home/hero";
 import { ProductRail } from "@/components/home/product-rail";
 import { SectionHeading } from "@/components/home/section-heading";
+import { Testimonials } from "@/components/home/testimonials";
 import { ProductCard } from "@/components/product/product-card";
 import { lines } from "@/data/products";
 import {
@@ -14,16 +15,19 @@ import {
   getNewDrops,
   getTrending,
 } from "@/server/queries/products";
+import { getFeaturedReviews, getStoreRating } from "@/server/reviews";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function HomePage() {
-  const [drop, newDrops, trending, lineSummary, covers] = await Promise.all([
+  const [drop, newDrops, trending, lineSummary, covers, featuredReviews, storeRating] = await Promise.all([
     getFeaturedDrop(),
     getNewDrops(8),
     getTrending(8),
     getLineSummary(),
     getCategoryCovers(),
+    getFeaturedReviews(5),
+    getStoreRating(),
   ]);
 
   return (
@@ -75,6 +79,12 @@ export default async function HomePage() {
             ))}
           </ul>
         </section>
+
+        {featuredReviews.length > 0 && (
+          <section aria-labelledby="avaliacoes-title">
+            <Testimonials reviews={featuredReviews} store={storeRating} />
+          </section>
+        )}
 
         <section id="qualidade" aria-labelledby="qualidade-title">
           <Authenticity />

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { Product } from "@/types/product";
+import { formatRating, reviewCountLabel } from "@/lib/reviews";
 import { cn } from "@/lib/utils";
+import { Stars } from "@/components/reviews/stars";
 import { Price } from "./price";
 import { ProductBadge } from "./product-badge";
 import { ProductMedia } from "./product-media";
@@ -58,6 +60,17 @@ export function ProductCard({ product, sizes, priority, className }: ProductCard
             {soldOut && <span className="sr-only"> — esgotado</span>}
           </Link>
         </h3>
+        {product.rating && product.rating.count > 0 && (
+          <p className="flex items-center gap-1.5 font-mono text-micro tabular-nums text-mute-strong">
+            <Stars value={product.rating.average} starClassName="size-3" />
+            <span aria-hidden="true">
+              <span className="text-ink">{formatRating(product.rating.average)}</span> ({product.rating.count})
+            </span>
+            <span className="sr-only">
+              nota {formatRating(product.rating.average)} de 5 em {reviewCountLabel(product.rating.count)}
+            </span>
+          </p>
+        )}
         <Price
           price={product.price}
           compareAtPrice={product.compareAtPrice}

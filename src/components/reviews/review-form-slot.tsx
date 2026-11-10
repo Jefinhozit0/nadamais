@@ -21,7 +21,11 @@ export async function ReviewFormSlot({ product }: { product: { id: string; slug:
     );
   }
 
-  const eligibility = await getReviewEligibility(profile.id, product.id);
+  const eligibility = await getReviewEligibility(profile.id, product.id).catch((error: unknown) => {
+    console.error("[avaliações] falha ao checar se o cliente pode avaliar", error);
+    return null;
+  });
+  if (!eligibility) return null;
   if (eligibility.kind !== "eligible") {
     return (
       <p className="max-w-[38ch] font-mono text-xs text-mute-strong">

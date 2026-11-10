@@ -7,6 +7,19 @@ import { db } from "./db";
 const hasDatabase = () => Boolean(process.env.DATABASE_URL);
 
 /**
+ * Avaliação é complemento: se a leitura falhar (ex.: migração ainda não aplicada),
+ * a loja continua funcionando sem estrelas em vez de quebrar a vitrine.
+ */
+async function safely<T>(what: string, fallback: T, read: () => Promise<T>): Promise<T> {
+  try {
+    return await read();
+  } catch (error) {
+    console.error(`[avaliações] falha ao ler ${what}; seguindo sem avaliações`, error);
+    return fallback;
+  }
+}
+
+/**
  * Avaliações reais de clientes. Só quem recebeu o produto (pedido "entregue") avalia.
  * Sem banco (modo mock) não há avaliações — nunca exibimos avaliações inventadas.
  */
@@ -54,15 +67,17 @@ function toReview(row: ReviewRow): Review {
 /** Média e total por produto (cards, catálogo). Lido junto com o catálogo. */
 export async function loadRatingMap(): Promise<Map<string, RatingSummary>> {
   if (!hasDatabase()) return new Map();
-  const rows = await db.review.groupBy({
-    by: ["productId"],
-    where: { hidden: false },
-    _avg: { rating: true },
-    _count: { _all: true },
+  return safely("médias", new Map(), async () => {
+    const rows = await db.review.groupBy({
+      by: ["productId"],
+      where: { hidden: false },
+      _avg: { rating: true },
+      _count: { _all: true },
+    });
+    return new Map(
+      rows.map((r) => [r.productId, { average: Math.round((r._avg.rating ?? 0) * 10) / 10, count: r._count._all }]),
+    );
   });
-  return new Map(
-    rows.map((r) => [r.productId, { average: Math.round((r._avg.rating ?? 0) * 10) / 10, count: r._count._all }]),
-  );
 }
 
 export type ProductReviews = { stats: ReviewStats; reviews: Review[] };
@@ -74,11 +89,13 @@ export async function getProductReviews(productId: string, take = 30): Promise<P
   cacheTag(REVIEWS_TAG);
   if (!hasDatabase()) return { stats: emptyStats(), reviews: [] };
   const where = { productId, hidden: false };
-  const [all, latest] = await Promise.all([
-    db.review.findMany({ where, select: { rating: true, fit: true } }),
-    db.review.findMany({ where, select: PUBLIC_SELECT, orderBy: { createdAt: "desc" }, take }),
-  ]);
-  return { stats: computeStats(all), reviews: latest.map(toReview) };
+  return safely("avaliações do produto", { stats: emptyStats(), reviews: [] }, async () => {
+    const [all, latest] = await Promise.all([
+      db.review.findMany({ where, select: { rating: true, fit: true } }),
+      db.review.findMany({ where, select: PUBLIC_SELECT, orderBy: { createdAt: "desc" }, take }),
+    ]);
+    return { stats: computeStats(all), reviews: latest.map(toReview) };
+  });
 }
 
 export type FeaturedReview = Review & { product: { slug: string; name: string; image?: string } };
@@ -89,7 +106,7 @@ export async function getFeaturedReviews(limit = 6): Promise<FeaturedReview[]> {
   cacheLife("minutes");
   cacheTag(REVIEWS_TAG);
   if (!hasDatabase()) return [];
-  const rows = await db.review.findMany({
+  const rows = await safely("depoimentos", [], () => db.review.findMany({
     where: { hidden: false, rating: { gte: 4 }, product: { active: true } },
     select: {
       ...PUBLIC_SELECT,
@@ -98,7 +115,7 @@ export async function getFeaturedReviews(limit = 6): Promise<FeaturedReview[]> {
     },
     orderBy: [{ rating: "desc" }, { createdAt: "desc" }],
     take: limit * 4,
-  });
+  }));
   const seen = new Set<string>();
   const out: FeaturedReview[] = [];
   for (const row of rows) {
@@ -155,6 +172,8 @@ export async function getStoreRating(): Promise<RatingSummary> {
   cacheLife("minutes");
   cacheTag(REVIEWS_TAG);
   if (!hasDatabase()) return { average: 0, count: 0 };
-  const agg = await db.review.aggregate({ where: { hidden: false }, _avg: { rating: true }, _count: { _all: true } });
-  return { average: Math.round((agg._avg.rating ?? 0) * 10) / 10, count: agg._count._all };
+  return safely("média da loja", { average: 0, count: 0 }, async () => {
+    const agg = await db.review.aggregate({ where: { hidden: false }, _avg: { rating: true }, _count: { _all: true } });
+    return { average: Math.round((agg._avg.rating ?? 0) * 10) / 10, count: agg._count._all };
+  });
 }

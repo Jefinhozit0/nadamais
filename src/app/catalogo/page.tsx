@@ -13,7 +13,7 @@ import { getTrending, listProducts } from "@/server/queries/products";
 
 export const metadata: Metadata = {
   title: "Catálogo",
-  description: "Sneakers e streetwear originais das marcas que você curte: tênis, moletons, camisetas e acessórios, com nota fiscal.",
+  description: "Sneakers e streetwear das marcas que você curte: tênis, moletons, camisetas e acessórios.",
   alternates: { canonical: "/catalogo" },
 };
 

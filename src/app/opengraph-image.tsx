@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { siteConfig } from "@/config/site";
 
-export const alt = `${siteConfig.name} — sneakers e streetwear originais`;
+export const alt = `${siteConfig.name} — sneakers e streetwear`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -41,7 +41,7 @@ export default async function Image() {
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 180, lineHeight: 0.9, letterSpacing: -8 }}>{siteConfig.name}</div>
           <div style={{ marginTop: 32, fontSize: 34, color: "#a19d9a", letterSpacing: -0.5 }}>
-            sneakers e streetwear originais.
+            sneakers e streetwear.
           </div>
         </div>
         <div style={{ display: "flex", height: 8, width: 160, background: "#da5f6b" }} />

@@ -5,9 +5,9 @@
 export const siteConfig = {
   name: "nada mais",
   shortName: "nada mais",
-  tagline: "Sneakers e streetwear originais. Sem excesso.",
+  tagline: "Sneakers e streetwear. Sem excesso.",
   description:
-    "Tênis, moletons, camisetas e acessórios originais das marcas que você curte, com nota fiscal. Peças conferidas uma a uma, envio para todo o Brasil, Pix, cartão e boleto.",
+    "Tênis, moletons, camisetas e acessórios das marcas que você curte. Peças conferidas uma a uma, envio para todo o Brasil, Pix, cartão e boleto.",
   locale: "pt-BR",
   currency: "BRL",
   maxInstallments: 10,

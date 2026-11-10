@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Scrollytelling da home: "da origem ao seu pé" — o caminho de um par original até o cliente.
+ * Scrollytelling da home: "do estoque ao seu pé" — o caminho de um par até o cliente.
  * A foto fica presa (sticky) enquanto as 4 etapas rolam ao lado; cada etapa aproxima
  * a câmera de um ponto da MESMA foto (zoom com transform-origin no ponto focal).
  * Sem JS ou com movimento reduzido, vira uma lista comum com a foto inteira.
@@ -25,17 +25,17 @@ type Step = {
 const steps: Step[] = [
   {
     n: "01",
-    title: "procedência",
-    text: "Cada par entra no estoque com nota fiscal do fornecedor. Sem origem comprovada, não vai para a loja.",
+    title: "seleção",
+    text: "Poucos modelos, escolhidos a dedo: o que a gente usaria, nas cores que combinam com tudo.",
     focus: { x: 55, y: 60, scale: 1 },
-    detail: "nota fiscal de origem",
+    detail: "o par inteiro",
   },
   {
     n: "02",
-    title: "autenticidade",
-    text: "Antes de anunciar, conferimos etiqueta, numeração, costura e acabamento de cada par, comparando com o padrão do modelo.",
+    title: "detalhes",
+    text: "Material, costura e acabamento de perto, nas fotos e na mão. O que está na foto é o que chega na sua casa.",
     focus: { x: 72, y: 50, scale: 2.1 },
-    detail: "etiqueta e acabamento",
+    detail: "cabedal e costura",
   },
   {
     n: "03",
@@ -47,7 +47,7 @@ const steps: Step[] = [
   {
     n: "04",
     title: "entrega",
-    text: "Vai na caixa original, protegida para a viagem, com nota fiscal e rastreio até a sua porta. Não serviu? A primeira troca é por nossa conta.",
+    text: "Vai na caixa, protegida para a viagem, com rastreio até a sua porta. Não serviu? A primeira troca é por nossa conta.",
     focus: { x: 22, y: 74, scale: 1.7 },
     detail: "embalagem",
   },
@@ -87,7 +87,7 @@ export function StoryScroll() {
           id="historia-title"
           className="reveal mt-3 max-w-[14ch] font-display text-[clamp(2rem,5vw,3.75rem)] leading-[0.95] font-semibold tracking-[-0.03em]"
         >
-          da origem ao seu pé.
+          do estoque ao seu pé.
         </h2>
       </div>
 

@@ -173,7 +173,7 @@ async function ProductView({ params }: { params: PageProps<"/produto/[slug]">["p
                 <span>
                   <span className="block font-medium">conferido antes do envio</span>
                   <span className="text-xs text-ink-soft">
-                    Original, com autenticidade, numeração e acabamento revisados antes de sair. Vai com nota fiscal.
+                    Cada par é revisado (numeração, costura e acabamento) antes de sair.
                   </span>
                 </span>
               </li>

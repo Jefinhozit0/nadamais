@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { CatalogProvider, CatalogResultsArea } from "@/components/catalog/catalog-provider";
 import { CatalogToolbar } from "@/components/catalog/catalog-toolbar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { FiltersPanel } from "@/components/catalog/filters-panel";
 import { ProductCard } from "@/components/product/product-card";
 import { buttonVariants } from "@/components/ui/button";
@@ -69,9 +70,10 @@ async function Catalog({ searchParams }: { searchParams: PageProps<"/catalogo">[
 
       <div className="mt-8 grid gap-8 lg:grid-cols-12">
         <aside aria-label="Filtros" className="hidden lg:col-span-3 lg:block">
-          <div className="sticky top-28 max-h-[calc(100dvh-8rem)] overflow-y-auto pr-2 [scrollbar-width:thin]">
+          {/* régua igual à do trilho da home, no lugar da barra de rolagem nativa */}
+          <ScrollArea className="sticky top-28 max-h-[calc(100dvh-8rem)]">
             <FiltersPanel filters={filters} facets={facets} />
-          </div>
+          </ScrollArea>
         </aside>
 
         <div className="lg:col-span-9">

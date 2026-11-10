@@ -6,6 +6,8 @@ import type { Address, Customer, PaymentMethod } from "@/lib/checkout-schema";
 import type { ShippingOption } from "@/lib/shipping";
 import { CATALOG_TAG } from "./catalog-source";
 import { db } from "./db";
+import { queueOrderEmail } from "./email/order-emails";
+import { emailKindForStatus } from "./email/templates";
 import type { OrderTotals, PricedLine } from "./pricing";
 
 /** Pedidos no Postgres. Estoque é reservado na criação e devolvido se o pagamento for recusado/cancelado. */
@@ -195,10 +197,15 @@ export async function listOrdersByProfile(profileId: string, take = 50): Promise
   return rows.map(toOrder);
 }
 
-/** Atualiza status/pagamento. Recusado ou cancelado devolve o estoque (uma única vez). */
+/**
+ * Atualiza status/pagamento. Recusado ou cancelado devolve o estoque (uma única vez).
+ * Quando o status muda, avisa o cliente por e-mail (pago, enviado, entregue, cancelado),
+ * exceto com notify: false — usado no checkout, onde a falha já aparece na tela.
+ */
 export async function updateOrder(
   id: string,
   patch: { status?: OrderStatus; payment?: Partial<PaymentInfo>; trackingCode?: string | null },
+  { notify = true }: { notify?: boolean } = {},
 ): Promise<Order | undefined> {
   const releasing = patch.status === "recusado" || patch.status === "cancelado";
   try {
@@ -215,7 +222,7 @@ export async function updateOrder(
           });
         }
       }
-      return tx.order.update({
+      const updated = await tx.order.update({
         where: { id },
         data: {
           ...(patch.status && { status: patch.status }),
@@ -225,9 +232,14 @@ export async function updateOrder(
         },
         include: withItems,
       });
+      return { updated, previous: current.status };
     });
-    if (row && releasing) revalidateTag(CATALOG_TAG, "max");
-    return row ? toOrder(row) : undefined;
+    if (!row) return undefined;
+    if (releasing) revalidateTag(CATALOG_TAG, "max");
+    const order = toOrder(row.updated);
+    const kind = notify && patch.status && patch.status !== row.previous ? emailKindForStatus(patch.status) : undefined;
+    if (kind) queueOrderEmail(order, kind);
+    return order;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") return undefined;
     throw error;

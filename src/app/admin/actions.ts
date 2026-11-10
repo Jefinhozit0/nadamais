@@ -9,7 +9,8 @@ import { displayName, manualReviewSchema } from "@/lib/reviews";
 import { requireAdmin } from "@/server/admin";
 import { CATALOG_TAG } from "@/server/catalog-source";
 import { db } from "@/server/db";
-import { updateOrder, type OrderStatus } from "@/server/orders";
+import { sendOrderEmail } from "@/server/email/order-emails";
+import { getOrder, updateOrder, type OrderStatus } from "@/server/orders";
 import { REVIEWS_TAG } from "@/server/reviews";
 
 /** Vitrine reflete na hora: expira o catálogo em cache e as páginas já geradas (produto, home, catálogo). */
@@ -171,6 +172,25 @@ export async function updateOrderStatus(_prev: OrderFormState, formData: FormDat
   revalidatePath("/admin/pedidos");
   revalidatePath("/admin");
   return { ok: true };
+}
+
+export type EmailFormState = { error?: string; ok?: string };
+
+/** Reenvio manual de um e-mail do pedido (ex.: código de rastreio corrigido, cliente não recebeu). */
+export async function resendOrderEmail(_prev: EmailFormState, formData: FormData): Promise<EmailFormState> {
+  const admin = await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const kind = z.enum(["pedido_recebido", "pagamento_aprovado", "pedido_enviado", "pedido_entregue", "pedido_cancelado"]).safeParse(formData.get("kind"));
+  if (!kind.success) return { error: "Escolha qual e-mail enviar." };
+  const order = await getOrder(id);
+  if (!order) return { error: "Pedido não encontrado." };
+  if (kind.data === "pedido_enviado" && !order.trackingCode) return { error: "Salve o código de rastreio antes de enviar este e-mail." };
+
+  const result = await sendOrderEmail(order, kind.data, { sentBy: admin.email });
+  revalidatePath(`/admin/pedidos/${id}`);
+  if (result.status === "desativado") return { error: "Envio de e-mail desligado: configure RESEND_API_KEY e EMAIL_FROM." };
+  if (result.status === "falhou") return { error: `O e-mail não saiu: ${result.error}` };
+  return { ok: `Enviado para ${order.customer.email}.` };
 }
 
 /** Moderação: oculta ou republica uma avaliação (não apaga — o cliente pode editar a dele). */

@@ -11,6 +11,7 @@ import {
 import { isMercadoPagoConfigured, paymentClient } from "@/server/mercadopago";
 import { createPaymentRequest, isPaymentoConfigured } from "@/server/paymento";
 import { getSessionUser } from "@/server/auth";
+import { queueOrderEmail } from "@/server/email/order-emails";
 import { db } from "@/server/db";
 import { hasDatabase } from "@/server/catalog-source";
 import { createOrder, OutOfStockError, statusFromProvider, updateOrder, type PaymentInfo } from "@/server/orders";
@@ -136,13 +137,14 @@ export async function POST(request: Request) {
         // o estoque fica reservado enquanto o link vale
         expiresAt: new Date(Date.now() + CRYPTO_WINDOW_MS),
       });
-      await updateOrder(order.id, {
+      const updated = await updateOrder(order.id, {
         payment: { method: "crypto", provider: "paymento", providerPaymentId: token, providerStatus: "Initialize", checkoutUrl: url },
       });
+      if (updated) queueOrderEmail(updated, "pedido_recebido");
       return Response.json({ orderId: order.id, redirectUrl: url });
     } catch (error) {
       console.error("[checkout] falha na Paymento", error);
-      await updateOrder(order.id, { status: "cancelado", payment: { statusDetail: "falha ao gerar o pagamento em cripto" } });
+      await updateOrder(order.id, { status: "cancelado", payment: { statusDetail: "falha ao gerar o pagamento em cripto" } }, { notify: false });
       return Response.json(
         { error: "Não conseguimos gerar o pagamento em cripto. Nada foi cobrado — tente de novo ou escolha outra forma." },
         { status: 502 },
@@ -163,7 +165,8 @@ export async function POST(request: Request) {
               pix: { qrCode: `00020126DEMO-${order.number}-NAO-PAGUE-ESTE-CODIGO6304ABCD` },
             }
           : { method: "boleto", provider: "demo", providerStatus: "pending", boleto: { url: "#demo", barcode: "00000.00000 00000.000000 00000.000000 0 00000000000000" } };
-    await updateOrder(order.id, { payment: demo, status: statusFromProvider(demo.providerStatus) });
+    const updated = await updateOrder(order.id, { payment: demo, status: statusFromProvider(demo.providerStatus) });
+    if (updated?.status === "aguardando_pagamento") queueOrderEmail(updated, "pedido_recebido");
     return Response.json({ orderId: order.id, demo: true });
   }
 
@@ -216,7 +219,9 @@ export async function POST(request: Request) {
         ? { lastFour: result.card.last_four_digits, installments: result.installments, brand: result.payment_method_id }
         : undefined,
     };
-    await updateOrder(order.id, { payment: info, status: statusFromProvider(result.status) });
+    // cartão recusado já aparece na tela: sem e-mail de cancelamento
+    const updated = await updateOrder(order.id, { payment: info, status: statusFromProvider(result.status) }, { notify: result.status !== "rejected" });
+    if (updated?.status === "aguardando_pagamento") queueOrderEmail(updated, "pedido_recebido");
 
     if (result.status === "rejected") {
       return Response.json(
@@ -227,7 +232,7 @@ export async function POST(request: Request) {
     return Response.json({ orderId: order.id });
   } catch (error) {
     console.error("[checkout] falha no Mercado Pago", error);
-    await updateOrder(order.id, { status: "cancelado" });
+    await updateOrder(order.id, { status: "cancelado" }, { notify: false });
     return Response.json(
       { error: "Não conseguimos falar com o meio de pagamento. Nada foi cobrado — tente de novo em instantes." },
       { status: 502 },

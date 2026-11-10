@@ -97,6 +97,23 @@ Testes: a Paymento não tem sandbox; use as redes de teste (Bitcoin testnet, Eth
 
 **Provisório:** o frete vem de uma tabela por região (`src/lib/shipping.ts`). Para produção, troque `quoteShipping` por Melhor Envio, Correios ou Frenet.
 
+## E-mails de pedido
+
+O cliente recebe um e-mail a cada etapa (enviados pelo [Resend](https://resend.com), em `src/server/email/`):
+
+| quando | e-mail |
+|---|---|
+| pedido criado no Pix, boleto ou cripto | "recebemos seu pedido", com o copia e cola, o boleto ou o link de pagamento |
+| status vira **pago** | pagamento aprovado |
+| status vira **enviado** | código de rastreio + botão para os Correios |
+| status vira **entregue** | "chegou" + link para avaliar (para quem tem conta) |
+| status vira **cancelado** ou **recusado** | aviso, com "nada foi cobrado" ou explicação do estorno |
+
+- **Rastreio manual:** postou o pacote, abra o pedido no admin, cole o código, mude para "enviado" e salve. Quando chegar, marque "entregue".
+- Um e-mail automático por pedido e tipo, mesmo que o Mercado Pago repita o aviso. Falhas nunca travam o pedido.
+- No admin, cada pedido mostra os e-mails enviados (ou que falharam) e tem "reenviar e-mail" (ex.: corrigiu o código de rastreio).
+- **Configuração:** crie a conta no Resend, adicione o **seu domínio** (o Resend mostra os registros DNS de SPF/DKIM para colar no registro do domínio), crie uma API key e preencha `RESEND_API_KEY`, `EMAIL_FROM` e, opcional, `EMAIL_REPLY_TO`. Sem as duas primeiras nada sai e o admin mostra "desligado". Não dá para enviar a partir de `*.vercel.app`.
+
 ## Testes
 
 - **Unitários** (`pnpm test`, `tests/unit/`): CPF/telefone/CEP, preço e parcelas, tamanhos, frete por CEP, filtros e ordenação do catálogo, preço autoritativo do pedido (estoque, desconto Pix) e validação do checkout. Não precisam de banco.
@@ -118,6 +135,7 @@ Na primeira vez: `pnpm exec playwright install chromium`.
 - [ ] Trocar as fotos do Unsplash por fotos próprias dos produtos (inclusive a da seção "da origem ao seu pé", em `src/components/home/story-scroll.tsx`).
 - [ ] Credenciais de **produção** do Mercado Pago + webhook apontando para o domínio.
 - [ ] Frete real (Melhor Envio, Correios ou Frenet) no lugar da tabela.
+- [ ] Domínio próprio verificado no Resend + `RESEND_API_KEY` e `EMAIL_FROM` na Vercel (e-mails de pedido).
 - [ ] SMTP próprio no Supabase (Authentication → Emails): o embutido manda poucos e-mails por hora.
 - [ ] Gerar novas chaves/senha do Supabase se alguma já foi exposta fora do `.env.local`.
 

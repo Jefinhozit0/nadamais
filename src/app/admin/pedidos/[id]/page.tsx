@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { allowedTransitions } from "@/app/admin/actions";
 import { OrderStatusBadge } from "@/components/account/order-status-badge";
+import { OrderEmails } from "@/components/admin/order-emails";
 import { OrderStatusForm } from "@/components/admin/order-status-form";
 import { formatBRL } from "@/lib/format";
 import { requireAdmin } from "@/server/admin";
@@ -112,11 +113,14 @@ async function OrderDetail({ params }: { params: PageProps<"/admin/pedidos/[id]"
       </div>
 
       <div className="flex flex-col gap-4 lg:col-span-5">
-        <div className="lg:sticky lg:top-28">
+        <div>
           <OrderStatusForm id={order.id} status={order.status} allowed={allowed} trackingCode={order.trackingCode} />
           <Link href={`/pedido/${order.id}`} target="_blank" className="mt-3 inline-block text-xs underline underline-offset-4">
             ver como o cliente vê
           </Link>
+          <div className="mt-6">
+            <OrderEmails order={order} />
+          </div>
         </div>
       </div>
     </div>

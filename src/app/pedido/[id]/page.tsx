@@ -9,6 +9,7 @@ import { StatusWatcher } from "@/components/order/status-watcher";
 import { buttonVariants } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
 import { formatBRL } from "@/lib/format";
+import { trackingUrl } from "@/lib/tracking";
 import { cn } from "@/lib/utils";
 import { getOrder, type Order, type OrderStatus } from "@/server/orders";
 
@@ -149,7 +150,7 @@ async function OrderView({ params }: { params: PageProps<"/pedido/[id]">["params
             </div>
             <CopyButton value={order.trackingCode} label="copiar código" />
             <a
-              href={`https://rastreamento.correios.com.br/app/index.php?objetos=${encodeURIComponent(order.trackingCode)}`}
+              href={trackingUrl(order.trackingCode)}
               target="_blank"
               rel="noreferrer"
               className={buttonVariants({ variant: "outline" })}

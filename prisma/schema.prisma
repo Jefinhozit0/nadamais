@@ -238,6 +238,7 @@ model Order {
 
   items   OrderItem[]
   reviews Review[]
+  emails  OrderEmail[]
 
   @@index([profileId, createdAt])
   @@index([customerEmail])
@@ -310,4 +311,38 @@ model Review {
   @@unique([profileId, productId])
   @@index([productId, hidden, createdAt])
   @@index([hidden, rating, createdAt])
+}
+
+enum EmailKind {
+  pedido_recebido
+  pagamento_aprovado
+  pedido_enviado
+  pedido_entregue
+  pedido_cancelado
+}
+
+enum EmailStatus {
+  pendente
+  enviado
+  falhou
+  desativado
+}
+
+/// E-mails transacionais de cada pedido (histórico no admin e trava contra envio duplicado).
+model OrderEmail {
+  id         String      @id @default(cuid())
+  orderId    String
+  order      Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  kind       EmailKind
+  to         String
+  status     EmailStatus
+  /// Envio automático: "<pedido>:<tipo>" — garante um por pedido mesmo com webhooks repetidos. Reenvio manual: vazio.
+  dedupeKey  String?     @unique
+  providerId String?
+  error      String?
+  /// E-mail do admin que reenviou (vazio = automático).
+  sentBy     String?
+  createdAt  DateTime    @default(now())
+
+  @@index([orderId, createdAt])
 }

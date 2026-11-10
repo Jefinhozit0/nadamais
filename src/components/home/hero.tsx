@@ -62,8 +62,8 @@ export function Hero({ drop }: { drop?: Product }) {
           Peças de verdade. Nada além do necessário.
         </p>
         <p className="mt-3 max-w-[34ch] text-xs leading-relaxed text-ink-soft">
-          Tênis, moletons e acessórios de desenho próprio. Couro, malha pesada e acabamento conferido peça por
-          peça.
+          Tênis, moletons e acessórios originais das marcas que você curte. Com nota fiscal e conferidos peça
+          por peça.
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
           <Link href="/catalogo?categoria=sneakers" className={buttonVariants({ variant: "solid" })}>

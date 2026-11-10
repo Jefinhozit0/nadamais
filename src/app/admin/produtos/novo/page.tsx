@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { ProductForm } from "@/components/admin/product-form";
 import { DEFAULT_SIZES, type ProductInput } from "@/lib/admin-schema";
 import { requireAdmin } from "@/server/admin";
+import { listBrands } from "@/server/admin-queries";
 
 export const metadata: Metadata = { title: "Novo produto" };
 
@@ -14,7 +15,7 @@ async function NewProduct() {
     shortName: "",
     slug: "",
     sku: "",
-    line: "essencial",
+    brand: "",
     category: "sneakers",
     type: "tênis",
     colorway: "",
@@ -31,7 +32,7 @@ async function NewProduct() {
     images: [],
     sizes: DEFAULT_SIZES.sneaker.map((label) => ({ label, stock: 0 })),
   };
-  return <ProductForm initial={blank} />;
+  return <ProductForm initial={blank} brands={await listBrands()} />;
 }
 
 export default function NewProductPage() {

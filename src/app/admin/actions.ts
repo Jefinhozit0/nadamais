@@ -51,7 +51,7 @@ export async function saveProduct(_prev: ProductFormState, formData: FormData): 
     shortName: p.shortName,
     slug: p.slug,
     sku: p.sku,
-    line: p.line,
+    brand: p.brand,
     category: p.category,
     type: p.type,
     colorway: p.colorway,

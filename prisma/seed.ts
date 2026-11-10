@@ -24,7 +24,7 @@ async function main() {
     const data = {
       name: p.name,
       shortName: p.shortName,
-      line: p.line,
+      brand: p.brand,
       category: p.category,
       type: p.type,
       colorway: p.colorway,

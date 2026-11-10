@@ -17,7 +17,7 @@ describe("parseCatalogParams", () => {
     expect(base).toEqual({
       q: "",
       categoria: undefined,
-      linhas: [],
+      marcas: [],
       tamanhos: [],
       cores: [],
       preco: undefined,
@@ -29,13 +29,13 @@ describe("parseCatalogParams", () => {
   it("aceita listas separadas por vírgula e ignora lixo", () => {
     const f = parseCatalogParams({
       categoria: "sneakers",
-      linha: "court,xpto,volume",
+      marca: "Nike,nada mais",
       cor: "preto,roxo",
       ordem: "menor-preco",
       pagina: "2",
     });
     expect(f.categoria).toBe("sneakers");
-    expect(f.linhas).toEqual(["court", "volume"]);
+    expect(f.marcas).toEqual(["Nike", "nada mais"]);
     expect(f.cores).toEqual(["preto"]);
     expect(f.ordem).toBe("menor-preco");
     expect(f.pagina).toBe(2);
@@ -50,7 +50,7 @@ describe("parseCatalogParams", () => {
   });
 
   it("ida e volta pela URL preserva os filtros", () => {
-    const f = parseCatalogParams({ categoria: "roupas", linha: "essencial", tamanho: "M,G", ordem: "novos" });
+    const f = parseCatalogParams({ categoria: "roupas", tamanho: "M,G", ordem: "novos" });
     const sp = Object.fromEntries(new URL(catalogHref(f), "http://x").searchParams);
     expect(parseCatalogParams(sp)).toEqual(f);
   });
@@ -88,9 +88,9 @@ describe("filtros", () => {
   });
 
   it("combina filtros: E entre grupos, OU dentro do grupo", () => {
-    const result = applyFilters(products, { ...base, linhas: ["court", "volume"], cores: ["preto"] });
+    const result = applyFilters(products, { ...base, marcas: ["NADA MAIS", "outra"], cores: ["preto"] });
     for (const p of result) {
-      expect(["court", "volume"]).toContain(p.line);
+      expect(p.brand).toBe("nada mais");
       expect(p.colors).toContain("preto");
     }
   });
@@ -125,5 +125,22 @@ describe("ordenação", () => {
     const before = products.map((p) => p.id);
     sortProducts(products, "menor-preco");
     expect(products.map((p) => p.id)).toEqual(before);
+  });
+});
+
+describe("marcas (revenda)", () => {
+  const make = (brand: string, id: string) => ({ ...products[0]!, id, brand });
+
+  it("agrupa grafias da mesma marca e ordena pela quantidade", async () => {
+    const { brandsOf } = await import("@/lib/catalog");
+    const items = [make("Nike", "a"), make("nike", "b"), make("Adidas", "c"), make("NIKE", "d")];
+    expect(brandsOf(items)).toEqual(["Nike", "Adidas"]);
+  });
+
+  it("filtro por marca ignora acento e caixa", async () => {
+    const { applyFilters, parseCatalogParams } = await import("@/lib/catalog");
+    const items = [make("Nike", "a"), make("Adidas", "c")];
+    const filters = parseCatalogParams({ marca: "nike" });
+    expect(applyFilters(items, filters).map((p) => p.id)).toEqual(["a"]);
   });
 });

@@ -14,7 +14,7 @@ import type { SearchSuggestion } from "@/server/queries/products";
 const popular = ["court", "chunky", "moletom", "cargo", "boné"];
 
 function hrefFor(s: SearchSuggestion): string {
-  return s.kind === "product" ? `/produto/${s.slug}` : catalogHref({ linhas: [s.line] });
+  return s.kind === "product" ? `/produto/${s.slug}` : catalogHref({ marcas: [s.brand] });
 }
 
 /**
@@ -114,7 +114,7 @@ export function SearchDialog() {
             aria-controls={listId}
             aria-autocomplete="list"
             aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
-            aria-label="Buscar por produto, linha ou cor"
+            aria-label="Buscar por marca, produto ou cor"
             placeholder="court, moletom, cargo…"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -146,13 +146,13 @@ export function SearchDialog() {
             </div>
           ) : visible.length === 0 ? (
             <p className="p-3 text-sm text-mute-strong">
-              {loading ? "buscando…" : `Nada para “${query.trim()}”. Tente o nome do modelo, a cor ou a linha.`}
+              {loading ? "buscando…" : `Nada para “${query.trim()}”. Tente a marca, o nome do modelo ou a cor.`}
             </p>
           ) : (
             <ul id={listId} role="listbox" aria-label="Sugestões">
               {visible.map((s, index) => (
                 <li
-                  key={s.kind === "product" ? s.slug : s.line}
+                  key={s.kind === "product" ? s.slug : `marca-${s.brand}`}
                   id={`${listId}-${index}`}
                   role="option"
                   aria-selected={index === active}
@@ -169,7 +169,7 @@ export function SearchDialog() {
                         {s.image && <Image src={s.image} alt="" fill sizes="44px" className="object-cover" />}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block font-mono text-micro text-mute-strong">linha {s.line}</span>
+                        <span className="block font-mono text-micro text-mute-strong lowercase">{s.brand}</span>
                         <span className="block truncate text-sm lowercase">{s.name}</span>
                       </span>
                       <span className="font-mono text-xs tabular-nums">{formatBRL(s.price)}</span>
@@ -177,10 +177,10 @@ export function SearchDialog() {
                   ) : (
                     <>
                       <span className="flex size-11 shrink-0 items-center justify-center rounded-sm border border-ink font-display text-xs">
-                        {s.line.slice(0, 2)}
+                        {s.brand.slice(0, 2).toLowerCase()}
                       </span>
                       <span className="flex-1 text-sm">
-                        linha <strong className="font-medium">{s.line}</strong>
+                        marca <strong className="font-medium lowercase">{s.brand}</strong>
                         <span className="ml-2 font-mono text-micro text-mute-strong">{s.count} produtos</span>
                       </span>
                       <ArrowUpRight className="size-4" strokeWidth={1.5} aria-hidden="true" />

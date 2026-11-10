@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Authenticity } from "@/components/home/authenticity";
-import { LineIndex } from "@/components/home/line-index";
+import { BrandIndex } from "@/components/home/brand-index";
 import { CategoryTiles } from "@/components/home/category-tiles";
 import { Hero } from "@/components/home/hero";
 import { ProductRail } from "@/components/home/product-rail";
@@ -8,9 +8,8 @@ import { SectionHeading } from "@/components/home/section-heading";
 import { StoryScroll } from "@/components/home/story-scroll";
 import { Testimonials } from "@/components/home/testimonials";
 import { ProductCard } from "@/components/product/product-card";
-import { lines } from "@/data/products";
 import {
-  getLineSummary,
+  getBrandSummary,
   getCategoryCovers,
   getFeaturedDrop,
   getNewDrops,
@@ -21,11 +20,11 @@ import { getFeaturedReviews, getStoreRating } from "@/server/reviews";
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function HomePage() {
-  const [drop, newDrops, trending, lineSummary, covers, featuredReviews, storeRating] = await Promise.all([
+  const [drop, newDrops, trending, brandSummary, covers, featuredReviews, storeRating] = await Promise.all([
     getFeaturedDrop(),
     getNewDrops(8),
     getTrending(8),
-    getLineSummary(),
+    getBrandSummary(),
     getCategoryCovers(),
     getFeaturedReviews(5),
     getStoreRating(),
@@ -60,19 +59,21 @@ export default async function HomePage() {
           <StoryScroll />
         </section>
 
-        <section aria-labelledby="linhas-title">
-          <SectionHeading id="linhas-title" title="linhas" />
-          <div className="mt-8">
-            <LineIndex
-              rows={lineSummary.map((l) => ({
-                line: l.line,
-                description: lines.find((x) => x.slug === l.line)?.description ?? "",
-                count: l.count,
-                cover: l.cover?.images[0] ? { src: l.cover.images[0].src } : undefined,
-              }))}
-            />
-          </div>
-        </section>
+        {/* só faz sentido com mais de uma marca no catálogo */}
+        {brandSummary.length > 1 && (
+          <section aria-labelledby="marcas-title">
+            <SectionHeading id="marcas-title" title="marcas" />
+            <div className="mt-8">
+              <BrandIndex
+                rows={brandSummary.map((b) => ({
+                  brand: b.brand,
+                  count: b.count,
+                  cover: b.cover?.images[0] ? { src: b.cover.images[0].src } : undefined,
+                }))}
+              />
+            </div>
+          </section>
+        )}
 
         <section aria-labelledby="alta-title">
           <SectionHeading id="alta-title" title="em alta" link={{ href: "/catalogo", label: "catálogo completo" }} />

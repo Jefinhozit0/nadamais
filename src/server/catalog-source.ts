@@ -31,7 +31,7 @@ export function toProduct(row: ProductRow): Product {
     slug: row.slug,
     name: row.name,
     shortName: row.shortName,
-    line: row.line,
+    brand: row.brand,
     category: row.category,
     type: row.type,
     colorway: row.colorway,

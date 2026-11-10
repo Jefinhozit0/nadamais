@@ -7,14 +7,14 @@ import { ProductForm } from "@/components/admin/product-form";
 import { Button } from "@/components/ui/button";
 import type { ProductInput } from "@/lib/admin-schema";
 import { requireAdmin } from "@/server/admin";
-import { getAdminProduct } from "@/server/admin-queries";
+import { getAdminProduct, listBrands } from "@/server/admin-queries";
 
 export const metadata: Metadata = { title: "Editar produto" };
 
 async function EditProduct({ params, searchParams }: PageProps<"/admin/produtos/[id]">) {
   await requireAdmin();
   const [{ id }, sp] = await Promise.all([params, searchParams]);
-  const product = await getAdminProduct(id);
+  const [product, brands] = await Promise.all([getAdminProduct(id), listBrands()]);
   if (!product) notFound();
 
   const initial: ProductInput = {
@@ -23,7 +23,7 @@ async function EditProduct({ params, searchParams }: PageProps<"/admin/produtos/
     shortName: product.shortName,
     slug: product.slug,
     sku: product.sku,
-    line: product.line,
+    brand: product.brand,
     category: product.category,
     type: product.type,
     colorway: product.colorway,
@@ -56,7 +56,7 @@ async function EditProduct({ params, searchParams }: PageProps<"/admin/produtos/
         </form>
       </div>
       {/* key: remonta o formulário com os dados salvos depois de cada gravação */}
-      <ProductForm key={`${product.id}-${sp.salvo ?? ""}-${product.active}`} initial={initial} saved={sp.salvo === "1"} />
+      <ProductForm key={`${product.id}-${sp.salvo ?? ""}-${product.active}`} initial={initial} saved={sp.salvo === "1"} brands={brands} />
     </>
   );
 }

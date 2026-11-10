@@ -1,8 +1,13 @@
 # nada mais — e-commerce de sneakers e streetwear
 
-Loja de sneakers e streetwear de desenho próprio para o mercado brasileiro, organizada em linhas (essencial, court, volume, utility).
+Loja de revenda de sneakers e streetwear **originais** de várias marcas para o mercado brasileiro. Cada produto tem uma marca (campo `brand`), usada no filtro do catálogo, na busca, no índice "marcas" da home e no JSON-LD.
 
-> **Política de catálogo:** a loja não vende produtos com marcas registradas de terceiros. Cadastre só produtos de marca própria, peças sem marca ou de fornecedores *white label*.
+> **Política de catálogo (revenda):**
+> - Só produtos **originais**, comprados de fornecedor com nota fiscal. Réplica é crime (Lei 9.279/96, arts. 189–190) e derruba a loja.
+> - Use **fotos próprias** (ou licenciadas). As fotos oficiais das marcas têm direitos autorais.
+> - O nome da marca e do modelo pode ser usado para identificar o produto, sem logotipos da marca como se fossem da loja e sem sugerir parceria. A página `/sobre` já traz o aviso de que a loja é independente.
+>
+> O catálogo de demonstração (`src/data/products.ts`, marca "nada mais") existe só para desenvolvimento: arquive esses produtos no admin quando cadastrar o estoque real.
 
 > "nada mais" é um nome provisório. Troque em `src/config/site.ts` e tudo acompanha.
 
@@ -109,7 +114,8 @@ Na primeira vez: `pnpm exec playwright install chromium`.
 
 - [ ] Preencher `siteConfig.legal` (razão social, CNPJ, endereço, e-mails) e o nome definitivo da loja.
 - [ ] Revisar `/privacidade` e `/trocas-e-devolucoes` com um profissional jurídico.
-- [ ] Trocar as fotos do Unsplash por fotos próprias dos produtos.
+- [ ] Cadastrar o estoque real (com marca) e arquivar os 25 produtos de demonstração.
+- [ ] Trocar as fotos do Unsplash por fotos próprias dos produtos (inclusive a da seção "da origem ao seu pé", em `src/components/home/story-scroll.tsx`).
 - [ ] Credenciais de **produção** do Mercado Pago + webhook apontando para o domínio.
 - [ ] Frete real (Melhor Envio, Correios ou Frenet) no lugar da tabela.
 - [ ] SMTP próprio no Supabase (Authentication → Emails): o embutido manda poucos e-mails por hora.

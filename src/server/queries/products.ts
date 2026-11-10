@@ -2,16 +2,17 @@ import "server-only";
 import {
   applyFilters,
   computeFacets,
+  brandsOf,
   inStock,
-  lineOrder,
   matchesQuery,
   normalize,
   PAGE_SIZE,
+  sameBrand,
   sortProducts,
   type CatalogFilters,
   type Facets,
 } from "@/lib/catalog";
-import type { Line, Product } from "@/types/product";
+import type { Product } from "@/types/product";
 import { loadCatalog } from "../catalog-source";
 
 /**
@@ -47,13 +48,13 @@ export async function getAllProductSlugs(): Promise<string[]> {
   return (await loadCatalog()).map((p) => p.slug);
 }
 
-/** Mesma categoria, priorizando a mesma linha; exclui o próprio produto. */
+/** Mesma categoria, priorizando a mesma marca; exclui o próprio produto. */
 export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {
   return (await loadCatalog())
     .filter((p) => p.id !== product.id && p.category === product.category)
     .sort(
       (a, b) =>
-        Number(b.line === product.line) - Number(a.line === product.line) ||
+        Number(sameBrand(b.brand, product.brand)) - Number(sameBrand(a.brand, product.brand)) ||
         Number(inStock(b)) - Number(inStock(a)) ||
         b.popularity - a.popularity,
     )
@@ -82,12 +83,13 @@ export async function getFeaturedDrop(): Promise<Product | undefined> {
   return latestDrop ?? sortProducts(withPhoto, "novos")[0];
 }
 
-export async function getLineSummary(): Promise<{ line: Line; count: number; cover?: Product }[]> {
+/** Marcas para o índice da home, com a peça mais procurada de cada uma. */
+export async function getBrandSummary(): Promise<{ brand: string; count: number; cover?: Product }[]> {
   const products = await loadCatalog();
-  return lineOrder.map((line) => {
-    const items = products.filter((p) => p.line === line);
+  return brandsOf(products).map((brand) => {
+    const items = products.filter((p) => sameBrand(p.brand, brand));
     return {
-      line,
+      brand,
       count: items.length,
       cover: items.filter((p) => p.images.length > 0).sort((a, b) => b.popularity - a.popularity)[0],
     };
@@ -112,17 +114,17 @@ export async function getCategoryCovers(): Promise<Record<Product["category"], P
 }
 
 export type SearchSuggestion =
-  | { kind: "product"; slug: string; name: string; line: Line; price: number; image?: string }
-  | { kind: "line"; line: Line; count: number };
+  | { kind: "product"; slug: string; name: string; brand: string; price: number; image?: string }
+  | { kind: "brand"; brand: string; count: number };
 
 export async function searchSuggestions(q: string, limit = 6): Promise<SearchSuggestion[]> {
   const query = q.trim();
   if (query.length < 2) return [];
   const products = await loadCatalog();
   const needle = normalize(query);
-  const lineHits = lineOrder
-    .filter((line) => line.includes(needle))
-    .map((line) => ({ kind: "line" as const, line, count: products.filter((p) => p.line === line).length }));
+  const brandHits = brandsOf(products)
+    .filter((brand) => normalize(brand).includes(needle))
+    .map((brand) => ({ kind: "brand" as const, brand, count: products.filter((p) => sameBrand(p.brand, brand)).length }));
   const productHits = sortProducts(
     products.filter((p) => matchesQuery(p, query)),
     "relevancia",
@@ -132,9 +134,9 @@ export async function searchSuggestions(q: string, limit = 6): Promise<SearchSug
       kind: "product" as const,
       slug: p.slug,
       name: p.name,
-      line: p.line,
+      brand: p.brand,
       price: p.price,
       image: p.images[0]?.src,
     }));
-  return [...lineHits.slice(0, 1), ...productHits].slice(0, limit);
+  return [...brandHits.slice(0, 1), ...productHits].slice(0, limit);
 }

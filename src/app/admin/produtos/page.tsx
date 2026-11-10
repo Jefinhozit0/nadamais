@@ -63,7 +63,7 @@ async function ProductTable({ searchParams }: { searchParams: PageProps<"/admin/
               <tr className="border-b border-line-soft text-left font-mono text-micro text-mute-strong">
                 <th scope="col" className="py-2 pr-4 font-normal">produto</th>
                 <th scope="col" className="py-2 pr-4 font-normal">sku</th>
-                <th scope="col" className="py-2 pr-4 font-normal">linha</th>
+                <th scope="col" className="py-2 pr-4 font-normal">marca</th>
                 <th scope="col" className="py-2 pr-4 text-right font-normal">preço</th>
                 <th scope="col" className="py-2 pr-4 text-right font-normal">estoque</th>
                 <th scope="col" className="py-2 font-normal">status</th>
@@ -84,7 +84,7 @@ async function ProductTable({ searchParams }: { searchParams: PageProps<"/admin/
                     </Link>
                   </td>
                   <td className="py-3 pr-4 font-mono text-xs">{p.sku}</td>
-                  <td className="py-3 pr-4 text-xs">{p.line}</td>
+                  <td className="py-3 pr-4 text-xs">{p.brand}</td>
                   <td className="py-3 pr-4 text-right font-mono tabular-nums">{formatBRL(p.price)}</td>
                   <td className="py-3 pr-4 text-right font-mono tabular-nums">
                     <span className={p.totalStock === 0 ? "text-drop" : undefined}>{p.totalStock}</span>

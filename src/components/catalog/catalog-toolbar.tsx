@@ -32,10 +32,10 @@ export function CatalogToolbar({ filters, facets, total }: Props) {
     ...(filters.categoria
       ? [{ key: "cat", label: categoryLabels[filters.categoria], remove: { categoria: undefined } }]
       : []),
-    ...filters.linhas.map((l) => ({
-      key: `l-${l}`,
-      label: `linha ${l}`,
-      remove: { linhas: filters.linhas.filter((x) => x !== l) },
+    ...filters.marcas.map((m) => ({
+      key: `m-${m}`,
+      label: m.toLowerCase(),
+      remove: { marcas: filters.marcas.filter((x) => x !== m) },
     })),
     ...filters.tamanhos.map((t) => ({
       key: `t-${t}`,

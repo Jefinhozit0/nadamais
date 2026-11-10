@@ -11,7 +11,7 @@ import type { Product } from "@/types/product";
 import { SizePicker } from "./size-picker";
 
 type Props = {
-  product: Pick<Product, "id" | "slug" | "name" | "line" | "price" | "images" | "sizes" | "sizeSystem">;
+  product: Pick<Product, "id" | "slug" | "name" | "brand" | "price" | "images" | "sizes" | "sizeSystem">;
 };
 
 /** Seleção de tamanho (BR/US/EU para tênis) + adicionar à sacola. */
@@ -37,7 +37,7 @@ export function ProductPurchase({ product }: Props) {
       productId: product.id,
       slug: product.slug,
       name: product.name,
-      line: product.line,
+      brand: product.brand,
       size: chosen.label,
       price: product.price,
       image: product.images[0]?.src,

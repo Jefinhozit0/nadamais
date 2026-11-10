@@ -14,7 +14,7 @@ export type PricedLine = {
   productId: string;
   slug: string;
   name: string;
-  line: string;
+  brand: string;
   category: Category;
   size: string;
   quantity: number;
@@ -51,7 +51,7 @@ export async function priceCart(items: readonly CartItemInput[]): Promise<Priced
       productId: product.id,
       slug: product.slug,
       name: product.name,
-      line: product.line,
+      brand: product.brand,
       category: product.category,
       size: item.size,
       quantity,

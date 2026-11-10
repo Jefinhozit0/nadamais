@@ -202,7 +202,7 @@ async function OrderView({ params }: { params: PageProps<"/pedido/[id]">["params
                 {line.image && <Image src={line.image} alt="" fill sizes="64px" className="object-cover" />}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block font-mono text-micro text-mute-strong">linha {line.line}</span>
+                <span className="block font-mono text-micro text-mute-strong">{line.brand}</span>
                 <span className="block truncate text-sm lowercase">{line.name}</span>
                 <span className="block font-mono text-xs text-mute-strong">
                   tam {line.size} · {line.quantity}×

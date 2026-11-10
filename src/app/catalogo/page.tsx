@@ -13,13 +13,13 @@ import { getTrending, listProducts } from "@/server/queries/products";
 
 export const metadata: Metadata = {
   title: "Catálogo",
-  description: "Tênis, moletons, camisetas, bonés e bolsas das linhas essencial, court, volume e utility.",
+  description: "Sneakers e streetwear originais das marcas que você curte: tênis, moletons, camisetas e acessórios, com nota fiscal.",
   alternates: { canonical: "/catalogo" },
 };
 
 function titleFor(filters: CatalogFilters): string {
   if (filters.q) return `“${filters.q}”`;
-  if (filters.linhas.length === 1 && !filters.categoria) return `linha ${filters.linhas[0]}`;
+  if (filters.marcas.length === 1 && !filters.categoria) return filters.marcas[0]!.toLowerCase();
   if (filters.categoria) return categoryLabels[filters.categoria];
   if (filters.ordem === "novos") return "novos drops";
   return "catálogo";
@@ -46,7 +46,7 @@ async function Catalog({ searchParams }: { searchParams: PageProps<"/catalogo">[
         <Form action="/catalogo" className="w-full md:max-w-sm" role="search">
           {/* preserva os filtros atuais ao buscar */}
           {filters.categoria && <input type="hidden" name="categoria" value={filters.categoria} />}
-          {filters.linhas.length > 0 && <input type="hidden" name="linha" value={filters.linhas.join(",")} />}
+          {filters.marcas.length > 0 && <input type="hidden" name="marca" value={filters.marcas.join(",")} />}
           <label htmlFor="catalog-q" className="sr-only">
             Buscar no catálogo
           </label>
@@ -57,7 +57,7 @@ async function Catalog({ searchParams }: { searchParams: PageProps<"/catalogo">[
               name="q"
               type="search"
               defaultValue={filters.q}
-              placeholder="buscar modelo, cor, linha…"
+              placeholder="buscar marca, modelo, cor…"
               className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-mute-strong"
             />
             <button type="submit" className={buttonVariants({ size: "sm" })}>

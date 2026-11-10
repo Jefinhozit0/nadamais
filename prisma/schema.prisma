@@ -18,6 +18,7 @@ enum Category {
   acessorios
 }
 
+/// Obsoleto (marca própria). Mantido para não perder dados antigos.
 enum Line {
   essencial
   court
@@ -48,7 +49,10 @@ model Product {
   slug           String        @unique
   name           String
   shortName      String
-  line           Line
+  /// Marca do produto (a loja revende marcas de terceiros, só originais).
+  brand          String
+  /// Obsoleto: "linha" da antiga marca própria. Mantido só para não perder dados; não é mais usado.
+  line           Line?
   category       Category
   type           String
   colorway       String
@@ -75,7 +79,7 @@ model Product {
   reviews    Review[]
 
   @@index([active, category])
-  @@index([active, line])
+  @@index([active, brand])
 }
 
 model ProductImage {
@@ -247,6 +251,7 @@ model OrderItem {
   product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   slug      String
   name      String
+  /// Marca do produto no momento da compra (coluna antiga "line", que guardava a linha da marca própria).
   line      String
   size      String
   quantity  Int

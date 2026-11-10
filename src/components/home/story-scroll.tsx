@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Scrollytelling da home: "do desenho ao seu pé".
+ * Scrollytelling da home: "da origem ao seu pé" — o caminho de um par original até o cliente.
  * A foto fica presa (sticky) enquanto as 4 etapas rolam ao lado; cada etapa aproxima
  * a câmera de um ponto da MESMA foto (zoom com transform-origin no ponto focal).
  * Sem JS ou com movimento reduzido, vira uma lista comum com a foto inteira.
@@ -25,29 +25,29 @@ type Step = {
 const steps: Step[] = [
   {
     n: "01",
-    title: "desenho",
-    text: "Começa no papel e fica no essencial: perfil baixo, linhas limpas e nenhum logo emprestado. Um desenho para durar mais que uma estação.",
+    title: "procedência",
+    text: "Cada par entra no estoque com nota fiscal do fornecedor. Sem origem comprovada, não vai para a loja.",
     focus: { x: 55, y: 60, scale: 1 },
-    detail: "court gum · perfil",
+    detail: "nota fiscal de origem",
   },
   {
     n: "02",
-    title: "material",
-    text: "Camurça macia no cabedal, forro de couro no calcanhar e sola de borracha natural. Materiais escolhidos a dedo, que melhoram com o uso.",
+    title: "autenticidade",
+    text: "Antes de anunciar, conferimos etiqueta, numeração, costura e acabamento de cada par, comparando com o padrão do modelo.",
     focus: { x: 72, y: 50, scale: 2.1 },
-    detail: "cabedal em camurça",
+    detail: "etiqueta e acabamento",
   },
   {
     n: "03",
     title: "conferência",
-    text: "Antes de sair, cada par passa pela mão: costura, cola, tamanho e acabamento revisados um a um. Se não passar, não vai.",
+    text: "Na hora de separar o pedido, olhamos de novo: tamanho certo, sem marca de uso, sola e colagem perfeitas. Se não passar, não vai.",
     focus: { x: 66, y: 72, scale: 2.4 },
     detail: "sola e colagem",
   },
   {
     n: "04",
     title: "entrega",
-    text: "Vai na caixa, com nota fiscal e rastreio até a sua porta. Não serviu? A primeira troca é por nossa conta.",
+    text: "Vai na caixa original, protegida para a viagem, com nota fiscal e rastreio até a sua porta. Não serviu? A primeira troca é por nossa conta.",
     focus: { x: 22, y: 74, scale: 1.7 },
     detail: "embalagem",
   },
@@ -82,12 +82,12 @@ export function StoryScroll() {
   return (
     <div className="grid gap-x-12 lg:grid-cols-12">
       <div className="lg:col-span-12">
-        <p className="font-mono text-micro text-mute-strong">como nasce um par</p>
+        <p className="font-mono text-micro text-mute-strong">do estoque até você</p>
         <h2
           id="historia-title"
           className="reveal mt-3 max-w-[14ch] font-display text-[clamp(2rem,5vw,3.75rem)] leading-[0.95] font-semibold tracking-[-0.03em]"
         >
-          do desenho ao seu pé.
+          da origem ao seu pé.
         </h2>
       </div>
 

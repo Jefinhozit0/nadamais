@@ -8,6 +8,12 @@ import { getOrder } from "./orders";
 
 export const LOW_STOCK = 2;
 
+/** Marcas já usadas no catálogo (sugestões do formulário de produto). */
+export async function listBrands(): Promise<string[]> {
+  const rows = await db.product.findMany({ distinct: ["brand"], select: { brand: true }, orderBy: { brand: "asc" } });
+  return rows.map((r) => r.brand).filter(Boolean);
+}
+
 export async function getDashboard() {
   const now = new Date();
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -66,7 +72,7 @@ export async function listAdminProducts(filter: AdminProductFilter) {
     name: r.name,
     colorway: r.colorway,
     sku: r.sku,
-    line: r.line,
+    brand: r.brand,
     category: r.category,
     price: r.price,
     active: r.active,

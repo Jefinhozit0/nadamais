@@ -96,8 +96,8 @@ async function ProductView({ params }: { params: PageProps<"/produto/[slug]">["p
           </li>
           <li aria-hidden="true">/</li>
           <li>
-            <Link href={catalogHref({ linhas: [product.line] })} className="rounded-sm hover:text-ink">
-              linha {product.line}
+            <Link href={catalogHref({ marcas: [product.brand] })} className="rounded-sm hover:text-ink">
+              {product.brand.toLowerCase()}
             </Link>
           </li>
           <li aria-hidden="true">/</li>
@@ -117,10 +117,10 @@ async function ProductView({ params }: { params: PageProps<"/produto/[slug]">["p
             <div>
               <div className="flex items-center justify-between gap-3">
                 <Link
-                  href={catalogHref({ linhas: [product.line] })}
+                  href={catalogHref({ marcas: [product.brand] })}
                   className="rounded-sm font-mono text-xs tracking-wide text-mute-strong hover:text-ink"
                 >
-                  linha {product.line}
+                  {product.brand.toLowerCase()}
                 </Link>
                 {(soldOut || product.badge) && <ProductBadge badge={soldOut ? "esgotado" : product.badge!} />}
               </div>
@@ -173,7 +173,7 @@ async function ProductView({ params }: { params: PageProps<"/produto/[slug]">["p
                 <span>
                   <span className="block font-medium">conferido antes do envio</span>
                   <span className="text-xs text-ink-soft">
-                    Cada peça é revisada (costura, cola, tamanho) antes de sair. Vai com nota fiscal.
+                    Original, com autenticidade, numeração e acabamento revisados antes de sair. Vai com nota fiscal.
                   </span>
                 </span>
               </li>
@@ -271,13 +271,13 @@ function productJsonLd(
       {
         "@type": "Product",
         "@id": `${url}#produto`,
-        name: `${product.name} ${product.colorway}`,
+        name: `${product.brand} ${product.name} ${product.colorway}`,
         description: product.description,
         sku: product.sku,
         color: product.colorway,
         category: categoryLabels[product.category],
         image: product.images.map((img) => absoluteUrl(img.src)),
-        brand: { "@type": "Brand", name: siteConfig.name },
+        brand: { "@type": "Brand", name: product.brand },
         // só compras verificadas pelo site: depoimentos recebidos por mensagem não entram (regra do Google)
         ...(verified.count > 0 && {
           aggregateRating: {

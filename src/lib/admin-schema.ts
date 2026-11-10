@@ -2,7 +2,6 @@ import { z } from "zod";
 
 /** Validação do produto no painel (cliente dá feedback; servidor é a fonte da verdade). */
 
-export const LINES = ["essencial", "court", "volume", "utility"] as const;
 export const CATEGORIES = ["sneakers", "roupas", "acessorios"] as const;
 export const SIZE_SYSTEMS = ["sneaker", "apparel", "one-size"] as const;
 export const BADGES = ["novo", "drop", "ultimas", "esgotado"] as const;
@@ -28,7 +27,7 @@ export const productInputSchema = z
       .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { error: "Só letras minúsculas, números e hífen (ex.: court-low-branco)." })
       .max(80),
     sku: z.string().trim().min(2, { error: "SKU obrigatório." }).max(40),
-    line: z.enum(LINES),
+    brand: z.string().trim().min(1, { error: "Informe a marca (ex.: Nike)." }).max(40),
     category: z.enum(CATEGORIES),
     type: z.string().trim().min(2, { error: "Ex.: tênis, moletom, boné." }).max(40),
     colorway: z.string().trim().min(2, { error: "Descreva a cor (ex.: branco total)." }).max(80),

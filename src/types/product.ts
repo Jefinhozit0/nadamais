@@ -1,7 +1,5 @@
 export type Category = "sneakers" | "roupas" | "acessorios";
 
-/** Linhas (coleções) próprias da loja. Não usamos marcas registradas de terceiros. */
-export type Line = "essencial" | "court" | "volume" | "utility";
 
 /** Família de cor usada no filtro do catálogo (o nome exato da cor fica em `colorway`). */
 export type ColorFamily =
@@ -44,7 +42,8 @@ export type Product = {
   name: string;
   /** Nome curto usado em chamadas e placeholders tipográficos (ex.: "court low"). */
   shortName: string;
-  line: Line;
+  /** Marca do produto (ex.: "Nike"). A loja revende produtos originais de várias marcas. */
+  brand: string;
   category: Category;
   /** Subtipo exibido na página (ex.: "tênis", "moletom", "gorro"). */
   type: string;

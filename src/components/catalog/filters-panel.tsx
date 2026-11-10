@@ -7,11 +7,12 @@ import {
   categoryLabels,
   colorFamilies,
   priceRanges,
+  sameBrand,
   type CatalogFilters,
   type Facets,
 } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
-import type { ColorFamily, Line } from "@/types/product";
+import type { ColorFamily } from "@/types/product";
 import { useCatalogNav } from "./catalog-provider";
 
 function toggle<T>(list: readonly T[], value: T): T[] {
@@ -98,24 +99,32 @@ export function FiltersPanel({ filters, facets }: { filters: CatalogFilters; fac
         </ul>
       </Group>
 
-      <Group title="linha">
+      {facets.marcas.length > 1 && (
+      <Group title="marca">
         <ul className="flex flex-col gap-1">
-          {facets.linhas.map(({ value, count }) => (
+          {facets.marcas.map(({ value, count }) => (
             <li key={value}>
               <label className="flex min-h-10 cursor-pointer items-center gap-3 rounded-sm has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ink">
                 <input
                   type="checkbox"
-                  checked={filters.linhas.includes(value)}
-                  onChange={() => go({ linhas: toggle<Line>(filters.linhas, value) })}
+                  checked={filters.marcas.some((m) => sameBrand(m, value))}
+                  onChange={() =>
+                    go({
+                      marcas: filters.marcas.some((m) => sameBrand(m, value))
+                        ? filters.marcas.filter((m) => !sameBrand(m, value))
+                        : [...filters.marcas, value],
+                    })
+                  }
                   className="size-4 accent-ink"
                 />
-                <span>{value}</span>
+                <span className="lowercase">{value}</span>
                 <Count n={count} />
               </label>
             </li>
           ))}
         </ul>
       </Group>
+      )}
 
       {(showSneakerSizes || showApparelSizes) && (
         <Group title="tamanho">

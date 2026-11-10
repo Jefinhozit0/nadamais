@@ -10,7 +10,7 @@ const fixture = {
   slug: "teste",
   name: "Tênis Teste",
   shortName: "teste",
-  line: "court",
+  brand: "nada mais",
   category: "sneakers",
   type: "tênis",
   colorway: "preto",

@@ -6,38 +6,35 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { catalogHref } from "@/lib/catalog";
-import type { Line } from "@/types/product";
-
-type LineRow = { line: Line; description: string; count: number; cover?: { src: string } };
+type BrandRow = { brand: string; count: number; cover?: { src: string } };
 
 /**
- * Índice das linhas da casa em tipografia grande (editorial, não grade de cards).
- * No desktop, passar o mouse mostra a peça mais procurada da linha.
+ * Índice das marcas em tipografia grande (editorial, não grade de cards).
+ * No desktop, passar o mouse mostra a peça mais procurada da marca.
  */
-export function LineIndex({ rows }: { rows: LineRow[] }) {
-  const [hovered, setHovered] = useState<Line | null>(null);
+export function BrandIndex({ rows }: { rows: BrandRow[] }) {
+  const [hovered, setHovered] = useState<string | null>(null);
   const reduce = useReducedMotion();
-  const active = rows.find((r) => r.line === hovered);
+  const active = rows.find((r) => r.brand === hovered);
 
   return (
     <div className="relative" onMouseLeave={() => setHovered(null)}>
       <ul>
         {rows.map((row) => (
-          <li key={row.line} className="border-t border-line-soft last:border-b">
+          <li key={row.brand} className="border-t border-line-soft last:border-b">
             <Link
-              href={catalogHref({ linhas: [row.line] })}
-              onMouseEnter={() => setHovered(row.line)}
-              onFocus={() => setHovered(row.line)}
+              href={catalogHref({ marcas: [row.brand] })}
+              onMouseEnter={() => setHovered(row.brand)}
+              onFocus={() => setHovered(row.brand)}
               className="group/line flex items-baseline justify-between gap-4 py-4 md:py-5"
             >
               <span className="min-w-0">
                 <span className="block font-display text-[clamp(2rem,6.5vw,5.25rem)] leading-[0.95] font-semibold tracking-[-0.03em] transition-[color,transform] duration-500 ease-out-expo group-hover/line:translate-x-2 group-hover/line:text-ink group-focus-visible/line:text-ink lg:text-mute-strong">
-                  {row.line}
+                  {row.brand.toLowerCase()}
                 </span>
-                <span className="mt-1 block text-xs text-ink-soft md:text-sm">{row.description}</span>
               </span>
               <span className="flex shrink-0 items-center gap-3 font-mono text-xs text-mute-strong">
-                {row.count} {row.count === 1 ? "peça" : "peças"}
+                {row.count} {row.count === 1 ? "produto" : "produtos"}
                 <ArrowUpRight className="size-5 text-ink" strokeWidth={1.5} aria-hidden="true" />
               </span>
             </Link>
@@ -48,7 +45,7 @@ export function LineIndex({ rows }: { rows: LineRow[] }) {
       <AnimatePresence>
         {active?.cover && (
           <motion.div
-            key={active.line}
+            key={active.brand}
             aria-hidden="true"
             initial={reduce ? false : { opacity: 0, scale: 0.96, rotate: -2 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}

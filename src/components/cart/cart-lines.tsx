@@ -36,7 +36,7 @@ export function CartLines({ lines, readOnly = false, onNavigate, className }: Ca
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="font-mono text-micro text-mute-strong">linha {line.line}</p>
+                <p className="font-mono text-micro text-mute-strong">{line.brand}</p>
                 <Link
                   href={`/produto/${line.slug}`}
                   onClick={onNavigate}

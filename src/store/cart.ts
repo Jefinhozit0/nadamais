@@ -9,8 +9,8 @@ export type CartLine = {
   productId: string;
   slug: string;
   name: string;
-  /** Linha (coleção) do produto. */
-  line: string;
+  /** Marca do produto. */
+  brand: string;
   size: string;
   /** Em centavos, no momento da adição (revalidado no checkout). */
   price: number;
@@ -55,8 +55,19 @@ export const useCart = create<CartState>()(
       clear: () => set({ lines: [] }),
     }),
     {
-      // v2: catálogo sem marcas de terceiros (sacolas v1 apontam para produtos que não existem mais)
       name: "cart-v2",
+      // v1: itens guardavam a "linha" da antiga marca própria; agora guardam a marca
+      version: 1,
+      migrate: (persisted, version) => {
+        const state = persisted as { lines?: (Partial<CartLine> & { line?: string })[] };
+        if (version < 1 && state?.lines) {
+          state.lines = state.lines.map((item) => {
+            const { line, ...rest } = item;
+            return { ...rest, brand: rest.brand ?? line ?? "" };
+          });
+        }
+        return state as CartState;
+      },
       storage: createJSONStorage(() => localStorage),
       // Reidratação manual após montar, para o HTML do servidor e do cliente baterem
       skipHydration: true,

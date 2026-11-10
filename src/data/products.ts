@@ -1,7 +1,6 @@
 import type {
   Category,
   ColorFamily,
-  Line,
   Product,
   ProductBadge,
   ProductImage,
@@ -10,13 +9,17 @@ import type {
 } from "@/types/product";
 
 /**
- * Catálogo de demonstração (25 produtos, todos sem marca registrada de terceiros).
+ * Catálogo de DEMONSTRAÇÃO (25 produtos genéricos, marca "nada mais"), usado sem banco e no seed.
+ * A loja revende produtos originais de várias marcas: o catálogo real entra pelo painel admin
+ * (arquive estes produtos de exemplo quando cadastrar o estoque de verdade).
  * Na Fase 4 vira o seed do Prisma; o catálogo real entra pelo painel admin.
  * Fotos: Unsplash (licença livre), escolhidas sem logos visíveis — ver docs/creditos-imagens.md.
  * Produtos sem `images` usam o placeholder tipográfico.
  */
 
 const U = "https://unsplash.com/photos/";
+
+const DEMO_BRAND = "nada mais";
 
 function img(file: string, alt: string, width: number, height: number, credit: string): ProductImage {
   return { src: `/images/products/${file}.jpg`, alt, width, height, kind: "photo", credit: U + credit };
@@ -52,7 +55,7 @@ type SeedInput = {
   slug: string;
   name: string;
   shortName: string;
-  line: Line;
+  brand: string;
   category: Category;
   type: string;
   colorway: string;
@@ -75,7 +78,7 @@ const seeds: SeedInput[] = [
     slug: "court-low-branco",
     name: "Court Low Couro",
     shortName: "court low",
-    line: "court",
+    brand: DEMO_BRAND,
     category: "sneakers",
     type: "tênis",
     colorway: "branco total",
@@ -93,7 +96,7 @@ const seeds: SeedInput[] = [
     slug: "court-gum-areia",
     name: "Court Gum Camurça",
     shortName: "court gum",
-    line: "court",
+    brand: DEMO_BRAND,
     category: "sneakers",
     type: "tênis",
     colorway: "areia / gum",
@@ -112,7 +115,7 @@ const seeds: SeedInput[] = [
     slug: "court-low-preto",
     name: "Court Low Couro",
     shortName: "court preto",
-    line: "court",
+    brand: DEMO_BRAND,
     category: "sneakers",
     type: "tênis",
     colorway: "preto total",
@@ -130,7 +133,7 @@ const seeds: SeedInput[] = [
     slug: "knit-slip-oliva",
     name: "Slip-on Knit",
     shortName: "knit slip",
-    line: "volume",
+    brand: DEMO_BRAND,
     category: "sneakers",
     type: "tênis slip-on",
     colorway: "oliva / branco",
@@ -149,7 +152,7 @@ const seeds: SeedInput[] = [
     slug: "chunky-areia",
     name: "Chunky Volume",
     shortName: "chunky",
-    line: "volume",
+    brand: DEMO_BRAND,
     category: "sneakers",
     type: "tênis",
     colorway: "areia",
@@ -168,7 +171,7 @@ const seeds: SeedInput[] = [
     slug: "chunky-off-white",
     name: "Chunky Volume",
     shortName: "chunky off",
-    line: "volume",
+    brand: DEMO_BRAND,
     category: "sneakers",
     type: "tênis",
     colorway: "off-white / gelo",
@@ -187,7 +190,7 @@ const seeds: SeedInput[] = [
     slug: "runner-nylon-cinza",
     name: "Runner Nylon",
     shortName: "runner",
-    line: "volume",
+    brand: DEMO_BRAND,
     category: "sneakers",
     type: "tênis de corrida retrô",
     colorway: "cinza / prata",
@@ -205,7 +208,7 @@ const seeds: SeedInput[] = [
     slug: "high-couro-preto",
     name: "High Couro",
     shortName: "high",
-    line: "court",
+    brand: DEMO_BRAND,
     category: "sneakers",
     type: "tênis cano alto",
     colorway: "preto / off-white",
@@ -224,7 +227,7 @@ const seeds: SeedInput[] = [
     slug: "court-lona-off-white",
     name: "Court Low Lona",
     shortName: "court lona",
-    line: "court",
+    brand: DEMO_BRAND,
     category: "sneakers",
     type: "tênis",
     colorway: "off-white",
@@ -242,7 +245,7 @@ const seeds: SeedInput[] = [
     slug: "mule-camurca-cafe",
     name: "Mule Camurça",
     shortName: "mule",
-    line: "utility",
+    brand: DEMO_BRAND,
     category: "sneakers",
     type: "mule",
     colorway: "café",
@@ -261,7 +264,7 @@ const seeds: SeedInput[] = [
     slug: "moletom-heavy-branco",
     name: "Moletom Heavy",
     shortName: "heavy branco",
-    line: "essencial",
+    brand: DEMO_BRAND,
     category: "roupas",
     type: "moletom",
     colorway: "branco",
@@ -279,7 +282,7 @@ const seeds: SeedInput[] = [
     slug: "moletom-heavy-areia",
     name: "Moletom Heavy",
     shortName: "heavy areia",
-    line: "essencial",
+    brand: DEMO_BRAND,
     category: "roupas",
     type: "moletom",
     colorway: "areia",
@@ -298,7 +301,7 @@ const seeds: SeedInput[] = [
     slug: "moletom-base-cores",
     name: "Moletom Base",
     shortName: "base cores",
-    line: "essencial",
+    brand: DEMO_BRAND,
     category: "roupas",
     type: "moletom",
     colorway: "cartela: mostarda, creme, sálvia, azul, lilás",
@@ -316,7 +319,7 @@ const seeds: SeedInput[] = [
     slug: "kit-moletom-preto-cinza",
     name: "Kit Moletom Heavy",
     shortName: "kit heavy",
-    line: "essencial",
+    brand: DEMO_BRAND,
     category: "roupas",
     type: "moletom",
     colorway: "preto + cinza mescla",
@@ -335,7 +338,7 @@ const seeds: SeedInput[] = [
     slug: "camiseta-pesada-branca",
     name: "Camiseta Pesada",
     shortName: "pesada branca",
-    line: "essencial",
+    brand: DEMO_BRAND,
     category: "roupas",
     type: "camiseta",
     colorway: "branco óptico",
@@ -353,7 +356,7 @@ const seeds: SeedInput[] = [
     slug: "pack-camisetas-pretas",
     name: "Pack 2 Camisetas Pesadas",
     shortName: "pack 2",
-    line: "essencial",
+    brand: DEMO_BRAND,
     category: "roupas",
     type: "camiseta",
     colorway: "preto / preto",
@@ -372,7 +375,7 @@ const seeds: SeedInput[] = [
     slug: "camiseta-oversized-branca",
     name: "Camiseta Oversized",
     shortName: "oversized",
-    line: "essencial",
+    brand: DEMO_BRAND,
     category: "roupas",
     type: "camiseta",
     colorway: "branco",
@@ -390,7 +393,7 @@ const seeds: SeedInput[] = [
     slug: "sueter-trico-off-white",
     name: "Suéter Tricô",
     shortName: "tricô off",
-    line: "essencial",
+    brand: DEMO_BRAND,
     category: "roupas",
     type: "suéter",
     colorway: "off-white",
@@ -408,7 +411,7 @@ const seeds: SeedInput[] = [
     slug: "trico-aberto-mostarda",
     name: "Suéter Tricô Aberto",
     shortName: "tricô mostarda",
-    line: "essencial",
+    brand: DEMO_BRAND,
     category: "roupas",
     type: "suéter",
     colorway: "mostarda",
@@ -427,7 +430,7 @@ const seeds: SeedInput[] = [
     slug: "calca-cargo-ripstop",
     name: "Calça Cargo Ripstop",
     shortName: "cargo",
-    line: "utility",
+    brand: DEMO_BRAND,
     category: "roupas",
     type: "calça",
     colorway: "grafite",
@@ -445,7 +448,7 @@ const seeds: SeedInput[] = [
     slug: "puffer-brilho-preta",
     name: "Puffer Brilho",
     shortName: "puffer",
-    line: "volume",
+    brand: DEMO_BRAND,
     category: "roupas",
     type: "jaqueta",
     colorway: "preto brilho",
@@ -474,7 +477,7 @@ const seeds: SeedInput[] = [
     slug: "bone-6-gomos-branco",
     name: "Boné 6 Gomos",
     shortName: "boné 6",
-    line: "essencial",
+    brand: DEMO_BRAND,
     category: "acessorios",
     type: "boné",
     colorway: "branco",
@@ -492,7 +495,7 @@ const seeds: SeedInput[] = [
     slug: "bone-trucker-branco",
     name: "Boné Trucker",
     shortName: "trucker",
-    line: "essencial",
+    brand: DEMO_BRAND,
     category: "acessorios",
     type: "boné",
     colorway: "branco",
@@ -510,7 +513,7 @@ const seeds: SeedInput[] = [
     slug: "bone-aba-curva-mostarda",
     name: "Boné Aba Curva",
     shortName: "boné curvo",
-    line: "essencial",
+    brand: DEMO_BRAND,
     category: "acessorios",
     type: "boné",
     colorway: "mostarda",
@@ -528,7 +531,7 @@ const seeds: SeedInput[] = [
     slug: "tote-lona-cru",
     name: "Tote Lona",
     shortName: "tote",
-    line: "utility",
+    brand: DEMO_BRAND,
     category: "acessorios",
     type: "bolsa",
     colorway: "cru",
@@ -545,13 +548,6 @@ const seeds: SeedInput[] = [
 ];
 
 export const products: readonly Product[] = seeds.map((seed, i) => build(seed, i));
-
-export const lines: readonly { slug: Line; label: string; description: string }[] = [
-  { slug: "essencial", label: "essencial", description: "Moletons, camisetas e bonés que você usa toda semana." },
-  { slug: "court", label: "court", description: "Tênis baixos de couro e lona, desenho limpo." },
-  { slug: "volume", label: "volume", description: "Solas em camadas e peças com presença." },
-  { slug: "utility", label: "utility", description: "Cargo, mule e bolsas feitos para uso pesado." },
-];
 
 export const categories: readonly { slug: Category; label: string; description: string }[] = [
   { slug: "sneakers", label: "sneakers", description: "Court, chunky, knit e cano alto." },

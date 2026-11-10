@@ -12,7 +12,6 @@ import {
   CATEGORIES,
   COLORS,
   DEFAULT_SIZES,
-  LINES,
   SIZE_SYSTEMS,
   slugify,
   type ProductInput,
@@ -38,7 +37,8 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-export function ProductForm({ initial, saved }: { initial: ProductInput; saved?: boolean }) {
+/** `brands`: marcas já cadastradas, sugeridas no campo (evita "Nike" e "nike" virarem duas marcas). */
+export function ProductForm({ initial, saved, brands = [] }: { initial: ProductInput; saved?: boolean; brands?: string[] }) {
   const [state, action, pending] = useActionState<ProductFormState, FormData>(saveProduct, {});
   const [p, setP] = useState<ProductInput>(initial);
   const [priceText, setPriceText] = useState(initial.price ? brl(initial.price) : "");
@@ -152,15 +152,16 @@ export function ProductForm({ initial, saved }: { initial: ProductInput; saved?:
         <Field label="sku" error={f.sku} className="sm:col-span-2">
           {(field) => <Input {...field} value={p.sku} onChange={(e) => set("sku", e.target.value.toUpperCase())} className="font-mono" />}
         </Field>
-        <Field label="linha" error={f.line} className="sm:col-span-2">
+        <Field label="marca" error={f.brand} hint="Como está na etiqueta (ex.: Nike, Adidas)." className="sm:col-span-2">
           {(field) => (
-            <select {...field} value={p.line} onChange={(e) => set("line", e.target.value as ProductInput["line"])} className={selectClass}>
-              {LINES.map((l) => (
-                <option key={l} value={l}>
-                  {l}
-                </option>
-              ))}
-            </select>
+            <>
+              <Input {...field} value={p.brand} onChange={(e) => set("brand", e.target.value)} list="marcas-cadastradas" autoComplete="off" />
+              <datalist id="marcas-cadastradas">
+                {brands.map((b) => (
+                  <option key={b} value={b} />
+                ))}
+              </datalist>
+            </>
           )}
         </Field>
         <Field label="categoria" error={f.category} className="sm:col-span-2">

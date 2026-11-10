@@ -74,7 +74,8 @@ function toOrder(row: OrderRow): Order {
       productId: i.productId ?? "",
       slug: i.slug,
       name: i.name,
-      line: i.line,
+      // a coluna "line" guarda a marca (antes guardava a linha da marca própria)
+      brand: i.line,
       size: i.size,
       quantity: i.quantity,
       unitPrice: i.unitPrice,
@@ -163,7 +164,7 @@ export async function createOrder(data: NewOrder): Promise<Order> {
             productId: l.productId,
             slug: l.slug,
             name: l.name,
-            line: l.line,
+            line: l.brand,
             size: l.size,
             quantity: l.quantity,
             unitPrice: l.unitPrice,

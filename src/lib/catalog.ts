@@ -1,4 +1,4 @@
-import type { Category, ColorFamily, Line, Product } from "@/types/product";
+import type { Category, ColorFamily, Product } from "@/types/product";
 import { compareSizes } from "./sizes";
 
 /* -------------------------------------------------------------------------- */
@@ -7,10 +7,9 @@ import { compareSizes } from "./sizes";
 
 export const PAGE_SIZE = 12;
 
-export const lineOrder: readonly Line[] = ["essencial", "court", "volume", "utility"];
-
-function isLine(value: string): value is Line {
-  return (lineOrder as readonly string[]).includes(value);
+/** Mesma marca? Compara sem acento/caixa ("Nike" = "nike"). */
+export function sameBrand(a: string, b: string): boolean {
+  return normalize(a) === normalize(b);
 }
 
 export const categoryLabels: Record<Category, string> = {
@@ -52,7 +51,8 @@ export type SortOption = (typeof sortOptions)[number]["value"];
 export type CatalogFilters = {
   q: string;
   categoria?: Category;
-  linhas: Line[];
+  /** Marcas como vieram na URL (comparadas com sameBrand). */
+  marcas: string[];
   tamanhos: string[];
   cores: ColorFamily[];
   preco?: PriceRange;
@@ -86,7 +86,7 @@ export function parseCatalogParams(params: RawParams): CatalogFilters {
   return {
     q: (first(params.q) ?? "").slice(0, 80),
     categoria: isCategory(categoria) ? categoria : undefined,
-    linhas: list(params.linha).filter(isLine),
+    marcas: list(params.marca).filter((m) => m.length <= 40).slice(0, 10),
     tamanhos: list(params.tamanho).slice(0, 20),
     cores: list(params.cor).filter((c): c is ColorFamily => colorValues.includes(c as ColorFamily)),
     preco: priceRanges.some((r) => r.value === preco) ? (preco as PriceRange) : undefined,
@@ -100,7 +100,7 @@ export function catalogHref(filters: Partial<CatalogFilters>): string {
   const sp = new URLSearchParams();
   if (filters.q) sp.set("q", filters.q);
   if (filters.categoria) sp.set("categoria", filters.categoria);
-  if (filters.linhas?.length) sp.set("linha", filters.linhas.join(","));
+  if (filters.marcas?.length) sp.set("marca", filters.marcas.map((m) => m.toLowerCase()).join(","));
   if (filters.tamanhos?.length) sp.set("tamanho", filters.tamanhos.join(","));
   if (filters.cores?.length) sp.set("cor", filters.cores.join(","));
   if (filters.preco) sp.set("preco", filters.preco);
@@ -113,7 +113,7 @@ export function catalogHref(filters: Partial<CatalogFilters>): string {
 export function activeFilterCount(filters: CatalogFilters): number {
   return (
     (filters.categoria ? 1 : 0) +
-    filters.linhas.length +
+    filters.marcas.length +
     filters.tamanhos.length +
     filters.cores.length +
     (filters.preco ? 1 : 0)
@@ -134,7 +134,7 @@ export function normalize(text: string): string {
 
 function searchableText(product: Product): string {
   return normalize(
-    [product.name, product.shortName, product.line, product.type, product.colorway, product.sku, ...product.colors].join(" "),
+    [product.brand, product.name, product.shortName, product.type, product.colorway, product.sku, ...product.colors].join(" "),
   );
 }
 
@@ -149,7 +149,7 @@ export function inStock(product: Product): boolean {
   return product.sizes.some((size) => size.stock > 0);
 }
 
-type FilterKey = "categoria" | "linhas" | "tamanhos" | "cores" | "preco";
+type FilterKey = "categoria" | "marcas" | "tamanhos" | "cores" | "preco";
 
 /** Aplica todos os filtros, exceto `skip` (usado para calcular contagens de facetas). */
 export function applyFilters(items: readonly Product[], filters: CatalogFilters, skip?: FilterKey): Product[] {
@@ -157,7 +157,7 @@ export function applyFilters(items: readonly Product[], filters: CatalogFilters,
   return items.filter((p) => {
     if (!matchesQuery(p, filters.q)) return false;
     if (skip !== "categoria" && filters.categoria && p.category !== filters.categoria) return false;
-    if (skip !== "linhas" && filters.linhas.length && !filters.linhas.includes(p.line)) return false;
+    if (skip !== "marcas" && filters.marcas.length && !filters.marcas.some((m) => sameBrand(m, p.brand))) return false;
     if (
       skip !== "tamanhos" &&
       filters.tamanhos.length &&
@@ -187,7 +187,7 @@ export function sortProducts(items: readonly Product[], ordem: SortOption): Prod
 
 export type Facets = {
   categorias: { value: Category; count: number }[];
-  linhas: { value: Line; count: number }[];
+  marcas: { value: string; count: number }[];
   tamanhos: { value: string; count: number }[];
   cores: { value: ColorFamily; count: number }[];
   precos: { value: PriceRange; count: number }[];
@@ -199,7 +199,7 @@ export function computeFacets(items: readonly Product[], filters: CatalogFilters
     values.map((value) => ({ value, count: source.filter((p) => test(p, value)).length }));
 
   const byCategory = applyFilters(items, filters, "categoria");
-  const byLine = applyFilters(items, filters, "linhas");
+  const byBrand = applyFilters(items, filters, "marcas");
   const bySize = applyFilters(items, filters, "tamanhos");
   const byColor = applyFilters(items, filters, "cores");
   const byPrice = applyFilters(items, filters, "preco");
@@ -209,7 +209,7 @@ export function computeFacets(items: readonly Product[], filters: CatalogFilters
 
   return {
     categorias: count(byCategory, ["sneakers", "roupas", "acessorios"] as const, (p, v) => p.category === v),
-    linhas: count(byLine, lineOrder, (p, v) => p.line === v),
+    marcas: count(byBrand, brandsOf(items), (p, v) => sameBrand(p.brand, v)).filter((b) => b.count > 0 || filters.marcas.some((m) => sameBrand(m, b.value))),
     tamanhos: count(sizeLabels.length ? bySize : [], sizeLabels, (p, v) =>
       p.sizes.some((s) => s.label === v && s.stock > 0),
     ),
@@ -219,4 +219,17 @@ export function computeFacets(items: readonly Product[], filters: CatalogFilters
       return r !== undefined && p.price >= r.min && p.price < r.max;
     }),
   };
+}
+
+/** Marcas do catálogo (uma grafia por marca), das com mais produtos para as com menos. */
+export function brandsOf(items: readonly Product[]): string[] {
+  const counts = new Map<string, { name: string; count: number }>();
+  for (const p of items) {
+    if (!p.brand) continue;
+    const key = normalize(p.brand);
+    const entry = counts.get(key) ?? { name: p.brand, count: 0 };
+    entry.count++;
+    counts.set(key, entry);
+  }
+  return [...counts.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "pt-BR")).map((e) => e.name);
 }

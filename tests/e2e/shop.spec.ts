@@ -12,6 +12,8 @@ test("home carrega e leva ao catálogo", async ({ page }) => {
 
 test("ordenação do catálogo vai para a URL", async ({ page }) => {
   await page.goto("/catalogo");
+  // escolher antes da hidratação não dispara o onChange do React
+  await page.waitForLoadState("networkidle");
   await page.getByRole("combobox", { name: /ordenar/ }).selectOption("menor-preco");
   await expect(page).toHaveURL(/ordem=menor-preco/);
 });

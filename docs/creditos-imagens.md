@@ -27,3 +27,9 @@ Critério de seleção: só fotos **sem logos ou marcas de terceiros visíveis**
 | `public/images/products/bone-mostarda.jpg` | https://unsplash.com/photos/a-yellow-baseball-cap-on-a-white-background-8XZBP38QJFM |
 | `public/images/products/tote-lona-cru.jpg` | https://unsplash.com/photos/smTDI-z1rlY |
 | `public/images/hero/hero-puffer-front-2.webp` (P&B, logos de terceiros no boné e na camiseta removidos, fundo recortado com GrabCut) | https://unsplash.com/photos/wJ_P3zjLYAY |
+
+## Fotos enviadas pela loja
+
+| Arquivo | Origem |
+|---|---|
+| `public/images/story/air-max-95-neon.webp` (fundo removido com rembg/isnet, ampliada 2×) | Foto enviada pelo dono da loja em 10/11/2026 (original de 447×447 px). Trocar por uma versão em alta resolução assim que houver. |

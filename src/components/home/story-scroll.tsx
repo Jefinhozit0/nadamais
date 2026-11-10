@@ -27,36 +27,45 @@ const steps: Step[] = [
     n: "01",
     title: "seleção",
     text: "Poucos modelos, escolhidos a dedo: o que a gente usaria, nas cores que combinam com tudo.",
-    focus: { x: 55, y: 60, scale: 1 },
+    focus: { x: 50, y: 50, scale: 1 },
     detail: "o par inteiro",
   },
   {
     n: "02",
     title: "detalhes",
     text: "Material, costura e acabamento de perto, nas fotos e na mão. O que está na foto é o que chega na sua casa.",
-    focus: { x: 72, y: 50, scale: 2.1 },
-    detail: "cabedal e costura",
+    focus: { x: 77, y: 60, scale: 1.45 },
+    detail: "cabedal em camadas",
   },
   {
     n: "03",
     title: "conferência",
     text: "Na hora de separar o pedido, olhamos de novo: tamanho certo, sem marca de uso, sola e colagem perfeitas. Se não passar, não vai.",
-    focus: { x: 66, y: 72, scale: 2.4 },
-    detail: "sola e colagem",
+    focus: { x: 82, y: 82, scale: 1.55 },
+    detail: "sola e bolha de ar",
   },
   {
     n: "04",
     title: "entrega",
     text: "Vai na caixa, protegida para a viagem, com rastreio até a sua porta. Não serviu? A primeira troca é por nossa conta.",
-    focus: { x: 22, y: 74, scale: 1.7 },
-    detail: "embalagem",
+    focus: { x: 61, y: 33, scale: 1.35 },
+    detail: "pronto para ir",
   },
 ];
 
+/** Recorte com fundo transparente (WebP com alfa): o tênis flutua sobre o halo da página. */
 const IMAGE = {
-  src: "/images/products/court-gum-areia.jpg",
-  alt: "Par de tênis de camurça areia com sola de borracha cor de mel, um apoiado sobre a caixa verde.",
+  src: "/images/story/air-max-95-neon.webp",
+  alt: "Par de Nike Air Max 95 em degradê de cinza com detalhes verde-neon, visto de cima.",
 };
+
+/** Bordas que se dissolvem: o zoom nunca mostra um corte reto. */
+const EDGE_FADE = {
+  maskImage: "linear-gradient(to right, transparent, #000 9%, #000 91%, transparent), linear-gradient(to bottom, transparent, #000 9%, #000 91%, transparent)",
+  maskComposite: "intersect",
+  WebkitMaskImage: "linear-gradient(to right, transparent, #000 9%, #000 91%, transparent), linear-gradient(to bottom, transparent, #000 9%, #000 91%, transparent)",
+  WebkitMaskComposite: "source-in",
+} as const;
 
 export function StoryScroll() {
   const [active, setActive] = useState(0);
@@ -93,31 +102,11 @@ export function StoryScroll() {
 
       {/* Foto presa: no celular fica no topo; no desktop, à direita */}
       <div className="sticky top-[4.75rem] z-10 mt-8 -mx-4 px-4 lg:top-28 lg:order-2 lg:col-span-6 lg:col-start-7 lg:mx-0 lg:mt-16 lg:self-start lg:px-0">
-        <figure className="relative mx-auto aspect-[4/5] max-h-[40svh] overflow-hidden rounded-card border border-line bg-haze lg:aspect-[2/3] lg:max-h-[calc(100svh-9rem)]">
-          <div
-            className="absolute inset-0 transition-[transform,transform-origin] duration-[900ms] ease-out-expo will-change-transform motion-reduce:transition-none"
-            style={{ transform: `scale(${focus.scale})`, transformOrigin: `${focus.x}% ${focus.y}%` }}
-          >
-            <Image src={IMAGE.src} alt={IMAGE.alt} fill sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover" />
-          </div>
-
-          {/* Legenda técnica (cantos como informação) */}
-          <figcaption
-            aria-hidden="true"
-            className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-3 rounded-full border border-line bg-canvas/90 px-4 py-2 font-mono text-micro backdrop-blur-sm"
-          >
-            <span className="tabular-nums">
-              {steps[active]!.n} <span className="text-mute-strong">/ 0{steps.length}</span>
-            </span>
-            <span key={active} className="truncate animate-[fade-in_400ms_var(--ease-out-expo)_both]">
-              {steps[active]!.detail}
-            </span>
-          </figcaption>
-
+        <figure className="relative mx-auto w-full max-w-[min(100%,42svh)] bg-canvas pb-2 lg:max-w-[min(100%,calc(100svh-14rem))] lg:bg-transparent">
           {/* Régua de progresso das etapas */}
-          <div aria-hidden="true" className="absolute inset-x-3 top-3 flex gap-1.5">
+          <div aria-hidden="true" className="flex gap-1.5">
             {steps.map((s, i) => (
-              <span key={s.n} className="h-0.5 flex-1 overflow-hidden rounded-full bg-canvas/60">
+              <span key={s.n} className="h-0.5 flex-1 overflow-hidden rounded-full bg-line-soft">
                 <span
                   className={cn(
                     "block h-full origin-left bg-ink transition-transform duration-500 ease-out-expo",
@@ -127,6 +116,28 @@ export function StoryScroll() {
               </span>
             ))}
           </div>
+
+          <div className="bg-halo relative mt-3 aspect-square overflow-hidden" style={EDGE_FADE}>
+            <div
+              className="absolute inset-[10%] transition-[transform,transform-origin] duration-[900ms] ease-out-expo will-change-transform motion-reduce:transition-none"
+              style={{ transform: `scale(${focus.scale})`, transformOrigin: `${focus.x}% ${focus.y}%` }}
+            >
+              <Image src={IMAGE.src} alt={IMAGE.alt} fill sizes="(min-width: 1024px) 40vw, 90vw" className="object-contain" />
+            </div>
+          </div>
+
+          {/* Legenda técnica (cantos como informação) */}
+          <figcaption
+            aria-hidden="true"
+            className="mt-3 flex items-center justify-between gap-3 rounded-full border border-line bg-canvas px-4 py-2 font-mono text-micro"
+          >
+            <span className="tabular-nums">
+              {steps[active]!.n} <span className="text-mute-strong">/ 0{steps.length}</span>
+            </span>
+            <span key={active} className="truncate animate-[fade-in_400ms_var(--ease-out-expo)_both]">
+              {steps[active]!.detail}
+            </span>
+          </figcaption>
         </figure>
       </div>
 

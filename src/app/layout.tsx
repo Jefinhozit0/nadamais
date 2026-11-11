@@ -30,7 +30,8 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${siteConfig.name} — sneakers e streetwear originais`,
+    // a aba mostra só ~25 caracteres: nome da loja primeiro, depois o que ela vende
+    default: `${siteConfig.name} · sneakers e streetwear`,
     template: `%s · ${siteConfig.name}`,
   },
   description: siteConfig.description,

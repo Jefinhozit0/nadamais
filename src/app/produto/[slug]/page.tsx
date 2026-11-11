@@ -28,7 +28,10 @@ export async function generateMetadata({ params }: PageProps<"/produto/[slug]">)
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) return { title: "Produto não encontrado" };
-  const title = `${product.name} ${product.colorway}`;
+  // marca na frente ("Nike Air Max 95 Neo"), salvo quando o nome já a traz ou é a própria loja
+  const brand = product.brand.trim();
+  const withBrand = brand && brand !== siteConfig.name && !product.name.toLowerCase().startsWith(brand.toLowerCase());
+  const title = `${withBrand ? `${brand} ` : ""}${product.name} ${product.colorway}`;
   return {
     title,
     description: `${product.description} ${formatBRL(product.price)} ou ${formatInstallments(product.price)} sem juros.`,

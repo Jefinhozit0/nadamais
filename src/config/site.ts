@@ -7,7 +7,7 @@ export const siteConfig = {
   shortName: "nada mais",
   tagline: "Sneakers e streetwear. Sem excesso.",
   description:
-    "Tênis, moletons, camisetas e acessórios das marcas que você curte. Peças conferidas uma a uma, envio para todo o Brasil, Pix, cartão e boleto.",
+    "Tênis e streetwear escolhidos a dedo. 5% off no Pix, frete grátis acima de R$ 499 e a primeira troca por nossa conta.",
   locale: "pt-BR",
   currency: "BRL",
   maxInstallments: 10,
